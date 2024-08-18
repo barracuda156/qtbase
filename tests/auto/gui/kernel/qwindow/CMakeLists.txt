@@ -31,7 +31,7 @@ if(APPLE OR WIN32 OR QT_FEATURE_xcb)
             Qt::GuiPrivate
     )
 
-    if(APPLE)
+    if(APPLE AND NOT QT_GUI_X11)
         enable_language(OBJCXX)
         set_source_files_properties(tst_foreignwindow.cpp PROPERTIES LANGUAGE OBJCXX)
         set_property(TARGET tst_foreignwindow PROPERTY PROPERTY MACOSX_BUNDLE TRUE)
