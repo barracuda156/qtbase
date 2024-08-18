@@ -28,8 +28,7 @@ set_property(CACHE INPUT_libpng PROPERTY STRINGS undefined no qt system)
 
 
 #### Libraries
-qt_set01(X11_SUPPORTED LINUX OR HPUX OR FREEBSD OR NETBSD OR OPENBSD OR SOLARIS OR
-    HURD)
+qt_set01(X11_SUPPORTED APPLE OR LINUX OR HPUX OR FREEBSD OR NETBSD OR OPENBSD OR SOLARIS OR HURD)
 qt_find_package(ATSPI2 PROVIDED_TARGETS PkgConfig::ATSPI2 MODULE_NAME gui QMAKE_LIB atspi)
 qt_find_package(DirectFB PROVIDED_TARGETS PkgConfig::DirectFB MODULE_NAME gui QMAKE_LIB directfb)
 qt_find_package(Libdrm PROVIDED_TARGETS Libdrm::Libdrm MODULE_NAME gui QMAKE_LIB drm)
@@ -708,8 +707,7 @@ qt_feature("system-freetype" PRIVATE
 )
 qt_feature("fontconfig" PUBLIC PRIVATE
     LABEL "Fontconfig"
-    AUTODETECT NOT APPLE
-    CONDITION NOT APPLE AND NOT WIN32 AND QT_FEATURE_system_freetype AND Fontconfig_FOUND
+    CONDITION NOT WIN32 AND QT_FEATURE_system_freetype AND Fontconfig_FOUND
 )
 qt_feature_definition("fontconfig" "QT_NO_FONTCONFIG" NEGATE VALUE "1")
 qt_feature("gbm"
@@ -840,7 +838,7 @@ qt_feature("vulkan" PUBLIC
 )
 qt_feature("metal" PUBLIC
     LABEL "Metal"
-    CONDITION MACOS OR IOS OR VISIONOS
+    CONDITION IOS OR VISIONOS
 )
 qt_feature("vkkhrdisplay" PRIVATE
     SECTION "Platform plugins"
@@ -961,7 +959,6 @@ qt_feature("tuiotouch" PRIVATE
 qt_feature("xcb" PUBLIC
     SECTION "Platform plugins"
     LABEL "XCB"
-    AUTODETECT NOT APPLE
     CONDITION QT_FEATURE_thread AND TARGET XCB::XCB AND TEST_xcb_syslibs AND QT_FEATURE_xkbcommon_x11
 )
 qt_feature("xcb-glx-plugin" PUBLIC
@@ -1017,7 +1014,7 @@ qt_feature("xkbcommon-x11" PRIVATE
 )
 qt_feature("xlib" PRIVATE
     LABEL "XLib"
-    AUTODETECT NOT APPLE OR QT_FEATURE_xcb
+    AUTODETECT QT_FEATURE_xcb
     CONDITION X11_FOUND
 )
 qt_feature("texthtmlparser" PUBLIC

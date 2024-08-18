@@ -135,5 +135,7 @@ if(NOT DEFINED QT_MAX_NEW_POLICY_CMAKE_VERSION)
     set(QT_MAX_NEW_POLICY_CMAKE_VERSION "@max_new_policy_version@")
 endif()
 
+set(QT_GUI_X11 @QT_GUI_X11@ CACHE BOOL "Use X11 GUI, regardless of a platform.")
+
 # Extra set of exported variables
 @QT_EXTRA_BUILD_INTERNALS_VARS@

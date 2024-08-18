@@ -434,3 +434,5 @@ endmacro()
 macro(qt_internal_set_qt_allow_download)
     option(QT_ALLOW_DOWNLOAD "Allows files to be downloaded when building Qt." OFF)
 endmacro()
+
+option(QT_GUI_X11 "Use X11 GUI, regardless of a platform." OFF)

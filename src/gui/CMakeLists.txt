@@ -7,7 +7,9 @@ qt_find_package(WrapPNG PROVIDED_TARGETS WrapPNG::WrapPNG)
 qt_find_package(WrapFreetype PROVIDED_TARGETS WrapFreetype::WrapFreetype)
 
 if (QT_FEATURE_gui)
-    if(QT_QPA_PLATFORMS)
+    if(QT_GUI_X11)
+        set(_default_platform "xcb")
+    elseif(QT_QPA_PLATFORMS)
         list(GET QT_QPA_PLATFORMS 0 _default_platform)
     elseif(WIN32)
         set(_default_platform "windows")
@@ -328,7 +330,7 @@ if(QT_FEATURE_pdf)
     )
 endif()
 
-if(WIN32 OR (UNIX AND NOT APPLE))
+if(WIN32 OR UNIX)
     set_target_properties(Gui PROPERTIES UNITY_BUILD OFF) # X11 define clashes/Windows oddities.
 endif()
 
@@ -385,7 +387,7 @@ qt_internal_extend_target(Gui CONDITION QT_FEATURE_opengl
         rhi/qrhigles2.cpp rhi/qrhigles2_p.h
 )
 
-qt_internal_extend_target(Gui CONDITION MACOS
+qt_internal_extend_target(Gui CONDITION (MACOS AND NOT QT_GUI_X11)
     SOURCES
         platform/macos/qcocoanativeinterface.mm
     LIBRARIES
@@ -431,7 +433,7 @@ qt_internal_extend_target(Gui CONDITION APPLE
         ${FWImageIO}
 )
 
-qt_internal_extend_target(Gui CONDITION APPLE AND QT_FEATURE_metal
+qt_internal_extend_target(Gui CONDITION (APPLE AND NOT QT_GUI_X11) AND QT_FEATURE_metal
     SOURCES
         platform/darwin/qmetallayer.mm platform/darwin/qmetallayer_p.h
     LIBRARIES
@@ -498,7 +500,7 @@ if(QT_FEATURE_graphicsframecapture)
             util/qgraphicsframecapturerenderdoc_p_p.h util/qgraphicsframecapturerenderdoc.cpp
     )
 
-    qt_internal_extend_target(Gui CONDITION IOS OR MACOS
+    qt_internal_extend_target(Gui CONDITION IOS
         SOURCES
             util/qgraphicsframecapturemetal_p_p.h util/qgraphicsframecapturemetal.mm
         PUBLIC_LIBRARIES
@@ -762,12 +764,12 @@ qt_internal_extend_target(Gui CONDITION QT_FEATURE_freetype
         WrapFreetype::WrapFreetype
 )
 
-qt_internal_extend_target(Gui CONDITION UNIX AND NOT APPLE
+qt_internal_extend_target(Gui CONDITION UNIX
     SOURCES
         text/unix/qgenericunixfontdatabase_p.h
 )
 
-qt_internal_extend_target(Gui CONDITION QT_FEATURE_fontconfig AND QT_FEATURE_freetype AND UNIX AND NOT APPLE
+qt_internal_extend_target(Gui CONDITION QT_FEATURE_fontconfig AND QT_FEATURE_freetype AND UNIX
     SOURCES
         text/unix/qfontconfigdatabase.cpp text/unix/qfontconfigdatabase_p.h
         text/unix/qfontenginemultifontconfig.cpp text/unix/qfontenginemultifontconfig_p.h
@@ -1054,7 +1056,7 @@ qt_internal_extend_target(Gui CONDITION QT_FEATURE_xkbcommon AND UNIX
         XKB::XKB
 )
 
-qt_internal_extend_target(Gui CONDITION QT_FEATURE_metal
+qt_internal_extend_target(Gui CONDITION (NOT QT_GUI_X11) AND QT_FEATURE_metal
     SOURCES
         rhi/qrhimetal.mm rhi/qrhimetal_p.h
     PUBLIC_LIBRARIES
