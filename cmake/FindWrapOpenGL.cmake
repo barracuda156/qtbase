@@ -16,41 +16,8 @@ if (OpenGL_FOUND)
     set(WrapOpenGL_FOUND ON)
 
     add_library(WrapOpenGL::WrapOpenGL INTERFACE IMPORTED)
-    if(APPLE)
-        # CMake 3.27 and older:
-        # On Darwin platforms FindOpenGL sets IMPORTED_LOCATION to the absolute path of the library
-        # within the framework. This ends up as an absolute path link flag, which we don't want,
-        # because that makes our .prl files un-relocatable.
-        # Extract the framework path instead, and use that in INTERFACE_LINK_LIBRARIES,
-        # which CMake ends up transforming into a relocatable -framework flag.
-        # See https://gitlab.kitware.com/cmake/cmake/-/issues/20871 for details.
-        #
-        # CMake 3.28 and above:
-        # IMPORTED_LOCATION is the absolute path the the OpenGL.framework folder.
-        get_target_property(__opengl_fw_lib_path OpenGL::GL IMPORTED_LOCATION)
-        if(__opengl_fw_lib_path AND NOT __opengl_fw_lib_path MATCHES "/([^/]+)\\.framework$")
-            get_filename_component(__opengl_fw_path "${__opengl_fw_lib_path}" DIRECTORY)
-        endif()
-
-        if(NOT __opengl_fw_path)
-            # Just a safety measure in case if no OpenGL::GL target exists.
-            set(__opengl_fw_path "-framework OpenGL")
-        endif()
-
-        find_library(WrapOpenGL_AGL NAMES AGL)
-        if(WrapOpenGL_AGL)
-            set(__opengl_agl_fw_path "${WrapOpenGL_AGL}")
-        endif()
-        if(NOT __opengl_agl_fw_path)
-            set(__opengl_agl_fw_path "-framework AGL")
-        endif()
-
-        target_link_libraries(WrapOpenGL::WrapOpenGL INTERFACE ${__opengl_fw_path})
-        target_link_libraries(WrapOpenGL::WrapOpenGL INTERFACE ${__opengl_agl_fw_path})
-    else()
-        target_link_libraries(WrapOpenGL::WrapOpenGL INTERFACE OpenGL::GL)
-    endif()
-elseif(UNIX AND NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Integrity")
+    target_link_libraries(WrapOpenGL::WrapOpenGL INTERFACE OpenGL::GL)
+elseif(UNIX AND NOT CMAKE_SYSTEM_NAME STREQUAL "Integrity")
     # Requesting only the OpenGL component ensures CMake does not mark the package as
     # not found if neither GLX nor libGL are available. This allows finding OpenGL
     # on an X11-less Linux system.
