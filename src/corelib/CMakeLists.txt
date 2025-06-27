@@ -463,7 +463,7 @@ qt_internal_add_simd_part(Core SIMD mips_dsp
         text/qstring_mips_dsp_asm.S
 )
 
-if(QT_FEATURE_reduce_relocations AND UNIX AND GCC)
+if(QT_FEATURE_reduce_relocations AND UNIX AND (NOT APPLE) AND GCC)
     target_link_options(Core PRIVATE
                         "LINKER:--dynamic-list=${CMAKE_CURRENT_LIST_DIR}/QtCore.dynlist")
 endif()
