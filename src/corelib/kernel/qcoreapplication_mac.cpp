@@ -13,6 +13,7 @@ QT_BEGIN_NAMESPACE
 QString qAppFileName()
 {
     static QString appFileName;
+#ifdef Q_OS_DARWIN_BROKEN
     if (appFileName.isEmpty()) {
         QCFType<CFURLRef> bundleURL(CFBundleCopyExecutableURL(CFBundleGetMainBundle()));
         if (bundleURL) {
@@ -21,6 +22,7 @@ QString qAppFileName()
                 appFileName = cfPath;
         }
     }
+#endif
     return appFileName;
 }
 
