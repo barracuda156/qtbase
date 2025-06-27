@@ -185,10 +185,12 @@ QDebug operator<<(QDebug dbg, id obj)
     }
 
     for (Class cls = object_getClass(obj); cls; cls = class_getSuperclass(cls)) {
+#ifdef Q_OS_DARWIN_BROKEN
         if (cls == NSObject.class) {
             dbg << static_cast<NSObject*>(obj);
             return dbg;
         }
+#endif
     }
 
     // Match NSObject.debugDescription
@@ -590,6 +592,8 @@ void qt_apple_check_os_version()
         return;
 #endif
 
+// FIXME: non-portable ObjC++
+#ifdef Q_OS_DARWIN_BROKEN
     if (current < required) {
         NSDictionary *plist = NSBundle.mainBundle.infoDictionary;
         NSString *applicationName = plist[@"CFBundleDisplayName"];
@@ -606,6 +610,7 @@ void qt_apple_check_os_version()
 
         exit(1);
     }
+#endif
 }
 Q_CONSTRUCTOR_FUNCTION(qt_apple_check_os_version);
 
@@ -641,6 +646,8 @@ void QMacKeyValueObserver::removeObserver() {
 KeyValueObserver *QMacKeyValueObserver::observer = [[KeyValueObserver alloc] init];
 
 QT_END_NAMESPACE
+
+#ifdef Q_OS_DARWIN_BROKEN
 @implementation QT_MANGLE_NAMESPACE(KeyValueObserver)
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object
         change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
@@ -652,6 +659,8 @@ QT_END_NAMESPACE
     (*reinterpret_cast<QMacKeyValueObserver::Callback*>(context))();
 }
 @end
+#endif // Q_OS_DARWIN_BROKEN
+
 QT_BEGIN_NAMESPACE
 
 // -------------------------------------------------------------------------
@@ -698,8 +707,10 @@ QMacVersion::VersionTuple QMacVersion::versionsForImage(const mach_header *machH
         switch (cmd) {
         case LC_VERSION_MIN_MACOSX: return QOperatingSystemVersion::MacOS;
         case LC_VERSION_MIN_IPHONEOS: return QOperatingSystemVersion::IOS;
+#ifdef Q_OS_DARWIN_BROKEN
         case LC_VERSION_MIN_TVOS: return QOperatingSystemVersion::TvOS;
         case LC_VERSION_MIN_WATCHOS: return QOperatingSystemVersion::WatchOS;
+#endif
         default: return QOperatingSystemVersion::Unknown;
         }
     };
@@ -711,12 +722,14 @@ QMacVersion::VersionTuple QMacVersion::versionsForImage(const mach_header *machH
         case Platform::iOS:
         case Platform::iOSSimulator:
             return QOperatingSystemVersion::IOS;
+#ifdef Q_OS_DARWIN_BROKEN
         case Platform::tvOS:
         case Platform::tvOSSimulator:
             return QOperatingSystemVersion::TvOS;
         case Platform::watchOS:
         case Platform::watchOSSimulator:
             return QOperatingSystemVersion::WatchOS;
+#endif
         default:
             return QOperatingSystemVersion::Unknown;
         }
@@ -735,12 +748,19 @@ QMacVersion::VersionTuple QMacVersion::versionsForImage(const mach_header *machH
     for (uint32_t i = 0; i < machHeader->ncmds; ++i) {
         load_command *loadCommand = reinterpret_cast<load_command *>(commandCursor);
         if (loadCommand->cmd == LC_VERSION_MIN_MACOSX || loadCommand->cmd == LC_VERSION_MIN_IPHONEOS
-            || loadCommand->cmd == LC_VERSION_MIN_TVOS || loadCommand->cmd == LC_VERSION_MIN_WATCHOS) {
+#ifdef Q_OS_DARWIN_BROKEN
+            || loadCommand->cmd == LC_VERSION_MIN_TVOS || loadCommand->cmd == LC_VERSION_MIN_WATCHOS
+#endif
+            ) {
+#ifdef Q_OS_DARWIN_BROKEN
             auto versionCommand = reinterpret_cast<version_min_command *>(loadCommand);
-            return makeVersionTuple(versionCommand->version, versionCommand->sdk, osForLoadCommand(loadCommand->cmd));
+            return makeVersionTuple(versionCommand->version
+                , versionCommand->sdk
+                , osForLoadCommand(loadCommand->cmd));
         } else if (loadCommand->cmd == LC_BUILD_VERSION) {
             auto versionCommand = reinterpret_cast<build_version_command *>(loadCommand);
             return makeVersionTuple(versionCommand->minos, versionCommand->sdk, osForPlatform(versionCommand->platform));
+#endif
         }
         commandCursor += loadCommand->cmdsize;
     }
@@ -793,4 +813,3 @@ QT_BEGIN_NAMESPACE
 // -------------------------------------------------------------------------
 
 QT_END_NAMESPACE
-
