@@ -635,6 +635,7 @@ void QMacNotificationObserver::remove()
 
 // -------------------------------------------------------------------------
 
+#ifdef Q_OS_DARWIN_BROKEN
 QMacKeyValueObserver::QMacKeyValueObserver(const QMacKeyValueObserver &other)
     : QMacKeyValueObserver(other.object, other.keyPath, *other.callback.get())
 {
@@ -652,6 +653,7 @@ void QMacKeyValueObserver::removeObserver() {
 }
 
 KeyValueObserver *QMacKeyValueObserver::observer = [[KeyValueObserver alloc] init];
+#endif // Q_OS_DARWIN_BROKEN
 
 QT_END_NAMESPACE
 
