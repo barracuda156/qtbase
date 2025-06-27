@@ -711,9 +711,9 @@ qt_internal_extend_target(Core CONDITION UNIX
 )
 if(APPLE)
     set_source_files_properties(io/qfilesystemengine_unix.cpp PROPERTIES LANGUAGE OBJCXX)
-    qt_internal_extend_target(Core CONDITION
-        PUBLIC_LIBRARIES ${FWUniformTypeIdentifiers}
-    )
+#    qt_internal_extend_target(Core CONDITION
+#        PUBLIC_LIBRARIES ${FWUniformTypeIdentifiers}
+#    )
 endif()
 
 qt_internal_extend_target(Core CONDITION UNIX AND NOT WASM
@@ -1277,38 +1277,38 @@ if(QT_FEATURE_permissions AND APPLE)
     endforeach()
 
     # Camera
-    qt_internal_extend_target(QDarwinCameraPermissionPlugin
-        LIBRARIES ${FWAVFoundation}
-    )
+#    qt_internal_extend_target(QDarwinCameraPermissionPlugin
+#        LIBRARIES ${FWAVFoundation}
+#    )
     set_property(TARGET QDarwinCameraPermissionPlugin PROPERTY
         _qt_darwin_permissison_separate_request TRUE
     )
 
     # Microphone
-    qt_internal_extend_target(QDarwinMicrophonePermissionPlugin
-        LIBRARIES ${FWAVFoundation}
-    )
+#    qt_internal_extend_target(QDarwinMicrophonePermissionPlugin
+#        LIBRARIES ${FWAVFoundation}
+#    )
     set_property(TARGET QDarwinMicrophonePermissionPlugin PROPERTY
         _qt_darwin_permissison_separate_request TRUE
     )
 
     # Bluetooth
-    qt_internal_extend_target(QDarwinBluetoothPermissionPlugin
-        LIBRARIES ${FWCoreBluetooth}
-    )
+#    qt_internal_extend_target(QDarwinBluetoothPermissionPlugin
+#        LIBRARIES ${FWCoreBluetooth}
+#    )
     set_property(TARGET QDarwinBluetoothPermissionPlugin PROPERTY
         _qt_info_plist_usage_descriptions "NSBluetoothAlwaysUsageDescription"
     )
 
     # Contacts
-    qt_internal_extend_target(QDarwinContactsPermissionPlugin
-        LIBRARIES ${FWContacts}
-    )
+#    qt_internal_extend_target(QDarwinContactsPermissionPlugin
+#        LIBRARIES ${FWContacts}
+#    )
 
     # Calendar
-    qt_internal_extend_target(QDarwinCalendarPermissionPlugin
-        LIBRARIES ${FWEventKit}
-    )
+#    qt_internal_extend_target(QDarwinCalendarPermissionPlugin
+#        LIBRARIES ${FWEventKit}
+#    )
     set_property(TARGET QDarwinCalendarPermissionPlugin PROPERTY
         _qt_info_plist_usage_descriptions "NSCalendarsUsageDescription"
     )

@@ -109,9 +109,9 @@ qt_internal_extend_target(Bootstrap CONDITION UNIX
 )
 if(APPLE)
     set_source_files_properties(../../corelib/io/qfilesystemengine_unix.cpp PROPERTIES LANGUAGE OBJCXX)
-    qt_internal_extend_target(Bootstrap CONDITION
-        PUBLIC_LIBRARIES ${FWUniformTypeIdentifiers}
-    )
+#    qt_internal_extend_target(Bootstrap CONDITION
+#        PUBLIC_LIBRARIES ${FWUniformTypeIdentifiers}
+#    )
 endif()
 
 qt_internal_extend_target(Bootstrap CONDITION WIN32
