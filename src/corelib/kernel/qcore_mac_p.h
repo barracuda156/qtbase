@@ -452,7 +452,8 @@ private:
 
 // -------------------------------------------------------------------------
 
-#ifdef __OBJC__
+// FIXME: broken code!
+#if defined(__OBJC__) && defined(Q_OS_DARWIN_BROKEN)
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value, T>::type
 qt_objc_cast(id object)
