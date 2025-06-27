@@ -672,6 +672,14 @@ qt_internal_extend_target(Core CONDITION INTEGRITY
         --pending_instantiations=128
 )
 
+# LegacySupport
+qt_internal_extend_target(Core CONDITION MACOS
+    COMPILE_OPTIONS
+        -isystem/opt/local/include/LegacySupport
+    PUBLIC_LIBRARIES
+        MacportsLegacySupport
+)
+
 # Workaround for QTBUG-101411
 # Remove if QCC (gcc version 8.3.0) for QNX 7.1.0 is no longer supported
 qt_internal_extend_target(Core CONDITION QCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "8.3.0")
