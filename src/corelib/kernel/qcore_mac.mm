@@ -252,14 +252,19 @@ QT_NAMESPACE_ALIAS_OBJC_CLASS(QMacAutoReleasePoolTracker);
 // a future where we use ARC (where NSAutoreleasePool is not allowed).
 // https://clang.llvm.org/docs/AutomaticReferenceCounting.html#runtime-support
 
+// FIXME: Broken code below should be re-written in the portable ObjC, of course.
+
+#ifdef Q_OS_DARWIN_BROKEN
 extern "C" {
 void *objc_autoreleasePoolPush(void);
 void objc_autoreleasePoolPop(void *pool);
 }
+#endif
 
 QT_BEGIN_NAMESPACE
 
 QMacAutoReleasePool::QMacAutoReleasePool()
+#ifdef Q_OS_DARWIN_BROKEN
     : pool(objc_autoreleasePoolPush())
 {
 #ifdef QT_DEBUG
@@ -301,11 +306,14 @@ QMacAutoReleasePool::QMacAutoReleasePool()
 
     [[trackerClass new] autorelease];
 #endif // QT_DEBUG
+#endif // Q_OS_DARWIN_BROKEN
 }
 
 QMacAutoReleasePool::~QMacAutoReleasePool()
 {
+#ifdef Q_OS_DARWIN_BROKEN
     objc_autoreleasePoolPop(pool);
+#endif
 }
 
 #ifndef QT_NO_DEBUG_STREAM
