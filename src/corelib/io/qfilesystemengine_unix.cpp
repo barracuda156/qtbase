@@ -39,8 +39,10 @@
 #if defined(Q_OS_DARWIN)
 # include <QtCore/private/qcore_mac_p.h>
 # include <CoreFoundation/CFBundle.h>
-# include <UniformTypeIdentifiers/UTType.h>
-# include <UniformTypeIdentifiers/UTCoreTypes.h>
+# ifdef Q_OS_DARWIN_BROKEN
+#   include <UniformTypeIdentifiers/UTType.h>
+#   include <UniformTypeIdentifiers/UTCoreTypes.h>
+# endif
 # include <Foundation/Foundation.h>
 # include <sys/clonefile.h>
 # include <copyfile.h>
@@ -124,10 +126,11 @@ static bool isPackage(const QFileSystemMetaData &data, const QFileSystemEntry &e
 
     if (suffix.length() > 0) {
         // First step: is it a bundle?
+#ifdef Q_OS_DARWIN_BROKEN
         const auto *utType = [UTType typeWithFilenameExtension:suffix.toNSString()];
         if ([utType conformsToType:UTTypeBundle])
             return true;
-
+#endif
         // Second step: check if an application knows the package type
         QCFType<CFStringRef> path = entry.filePath().toCFString();
         QCFType<CFURLRef> url = CFURLCreateWithFileSystemPath(0, path, kCFURLPOSIXPathStyle, true);
