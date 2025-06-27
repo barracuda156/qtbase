@@ -43,6 +43,7 @@
 #endif
 
 #ifdef Q_OS_DARWIN
+#include <AvailabilityMacros.h>
 #include <QtCore/private/qcore_mac_p.h>
 #endif
 
@@ -101,7 +102,11 @@ static int qt_gettid()
 {
     // no error handling: this call cannot fail
     __uint64_t tid;
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1060 || defined(__POWERPC__)
+    tid = pthread_mach_thread_np(pthread_self());
+#else
     pthread_threadid_np(NULL, &tid);
+#endif
     return tid;
 }
 #elif defined(Q_OS_FREEBSD_KERNEL) && defined(__FreeBSD_version) && __FreeBSD_version >= 900031
