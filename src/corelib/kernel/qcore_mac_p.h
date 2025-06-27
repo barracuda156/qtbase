@@ -235,13 +235,11 @@ Q_CORE_EXPORT AppleApplication *qt_apple_sharedApplication();
 
 // --------------------------------------------------------------------------
 
-#if !defined(QT_BOOTSTRAPPED)
+#if !defined(QT_BOOTSTRAPPED) && defined(Q_OS_DARWIN_BROKEN)
 #define QT_USE_APPLE_UNIFIED_LOGGING
 
 QT_END_NAMESPACE
-#ifdef Q_OS_DARWIN_BROKEN
 #include <os/log.h>
-#endif
 QT_BEGIN_NAMESPACE
 
 class Q_CORE_EXPORT AppleUnifiedLogger
@@ -262,12 +260,10 @@ private:
 
 // --------------------------------------------------------------------------
 
-#if !defined(QT_BOOTSTRAPPED)
+#if !defined(QT_BOOTSTRAPPED) && defined(Q_OS_DARWIN_BROKEN)
 
 QT_END_NAMESPACE
-#ifdef Q_OS_DARWIN_BROKEN
 #include <os/activity.h>
-#endif
 QT_BEGIN_NAMESPACE
 
 template <typename T> using QAppleOsType = QAppleRefCounted<T, void *, os_retain, os_release>;
