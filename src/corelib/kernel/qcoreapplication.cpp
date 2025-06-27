@@ -146,7 +146,7 @@ Q_CONSTINIT static QBasicAtomicPointer<QCoreApplication> g_self = nullptr;
 QString QCoreApplicationPrivate::infoDictionaryStringProperty(const QString &propertyName)
 {
     QString bundleName;
-    QCFString cfPropertyName = propertyName.toCFString();
+    QCFString cfPropertyName(static_cast<CFStringRef>(propertyName.toCFString()));
     CFTypeRef string = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(),
                                                             cfPropertyName);
     if (string)
