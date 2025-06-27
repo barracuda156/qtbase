@@ -466,7 +466,7 @@ AppleApplication *qt_apple_sharedApplication()
 
 #if !defined(QT_BOOTSTRAPPED)
 
-#if defined(Q_OS_MACOS)
+#if defined(Q_OS_DARWIN_BROKEN)
 namespace {
 struct SandboxChecker
 {
