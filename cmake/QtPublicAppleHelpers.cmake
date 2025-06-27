@@ -826,8 +826,12 @@ function(_qt_internal_get_apple_sdk_version out_var)
                         OUTPUT_VARIABLE sdk_version
                         ERROR_VARIABLE xcrun_error)
         if(NOT sdk_version)
-            message(FATAL_ERROR
+            if(CMAKE_OSX_DEPLOYMENT_TARGET)
+                set(sdk_version ${CMAKE_OSX_DEPLOYMENT_TARGET})
+            else()
+                message(FATAL_ERROR
                     "Can't determine darwin ${sdk_name} SDK version. Error: ${xcrun_error}")
+            endif()
         endif()
         string(STRIP "${sdk_version}" sdk_version)
         set(${out_var} "${sdk_version}" PARENT_SCOPE)

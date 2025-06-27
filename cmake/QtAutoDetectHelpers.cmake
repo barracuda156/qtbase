@@ -393,8 +393,10 @@ endfunction()
 # Similar to the code in Modules/CMakeDetermineSystem.cmake
 # and thus allows override via CMAKE_APPLE_SILICON_PROCESSOR.
 function(qt_internal_get_early_apple_host_system_arch out_var_processor)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "powerpc|ppc")
+        set(processor "powerpc")
     # If we are running on Apple Silicon, honor CMAKE_APPLE_SILICON_PROCESSOR.
-    if(DEFINED CMAKE_APPLE_SILICON_PROCESSOR)
+    elseif(DEFINED CMAKE_APPLE_SILICON_PROCESSOR)
         set(processor "${CMAKE_APPLE_SILICON_PROCESSOR}")
     elseif(DEFINED ENV{CMAKE_APPLE_SILICON_PROCESSOR})
         set(processor "$ENV{CMAKE_APPLE_SILICON_PROCESSOR}")
@@ -430,46 +432,7 @@ endfunction()
 #
 # If a cross-compilation is detected, a host Qt will be required for tools.
 function(qt_auto_detect_macos_single_arch_cross_compilation)
-    # Skip on non-Apple platforms.
-    if(NOT APPLE
-
-        # If CMAKE_SYSTEM_NAME is explicitly specified, it means CMake will implicitly
-        # do `set(CMAKE_CROSSCOMPILING TRUE)`, so we don't need to do anything extra.
-        OR CMAKE_SYSTEM_NAME OR CMAKE_CROSSCOMPILING
-
-        # Opt out just in case this breaks something
-        OR QT_NO_HANDLE_APPLE_SINGLE_ARCH_CROSS_COMPILING
-
-        # Exit early if check was previously done, so we don't need to do extra process calls.
-        OR QT_INTERNAL_MACOS_SINGLE_ARCH_CROSS_COMPILING_DETECTION_DONE)
-        return()
-    endif()
-
-    list(LENGTH CMAKE_OSX_ARCHITECTURES arch_count)
-
-    # We only consider cross-compilation the case where arch count is exactly 1.
-    if(NOT arch_count EQUAL 1)
-        return()
-    else()
-        set(target_arch "${CMAKE_OSX_ARCHITECTURES}")
-    endif()
-
-    qt_internal_get_early_apple_host_system_arch(host_arch)
-    if(NOT "${host_arch}" STREQUAL "${target_arch}" AND
-            NOT ("${host_arch}" STREQUAL "x86_64" AND "${target_arch}" STREQUAL "x86_64h"))
-        message(
-            STATUS "Detected implicit macOS cross-compilation. "
-            "Host arch: ${host_arch} Target arch: ${target_arch}. "
-            "Setting CMAKE_CROSSCOMPILING to TRUE."
-        )
-
-        # Setting these tells CMake we are cross-compiling. This gets set in the correct scope
-        # for top-level builds as well, because it is included via
-        # qt_internal_top_level_setup_autodetect -> include() -> qt_internal_setup_autodetect()
-        # all of which are macros that don't create a new scope.
-        set(CMAKE_SYSTEM_NAME "Darwin" PARENT_SCOPE)
-        set(CMAKE_CROSSCOMPILING "TRUE" PARENT_SCOPE)
-    endif()
+    return()
 
     set(QT_INTERNAL_MACOS_SINGLE_ARCH_CROSS_COMPILING_DETECTION_DONE TRUE CACHE BOOL "")
 endfunction()
