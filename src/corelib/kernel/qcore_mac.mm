@@ -199,11 +199,13 @@ QDebug operator<<(QDebug dbg, id obj)
 
 QDebug operator<<(QDebug dbg, const NSObject *nsObject)
 {
+#ifdef Q_OS_DARWIN_BROKEN
     return dbg << (nsObject ?
             dbg.verbosity() > 2 ?
                 nsObject.debugDescription.UTF8String :
                 nsObject.description.UTF8String
         : "NSObject(0x0)");
+#endif
 }
 
 QDebug operator<<(QDebug dbg, CFStringRef stringRef)
@@ -320,7 +322,7 @@ QDebug operator<<(QDebug debug, const QCFString &string)
 }
 #endif // !QT_NO_DEBUG_STREAM
 
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) && defined(Q_OS_DARWIN_BROKEN)
 bool qt_mac_applicationIsInDarkMode()
 {
     auto appearance = [NSApp.effectiveAppearance bestMatchFromAppearancesWithNames:
