@@ -30,6 +30,9 @@
 #  if __has_include(<IOKit/IOKitLib.h>)
 #    include <IOKit/IOKitLib.h>
 #  endif
+#  ifndef kIOMainPortDefault
+#    define kIOMainPortDefault kIOMasterPortDefault
+#  endif
 #endif
 
 #ifdef Q_OS_BSD4
