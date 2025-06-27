@@ -266,7 +266,9 @@ QT_BEGIN_NAMESPACE
 QMacAutoReleasePool::QMacAutoReleasePool()
 #ifdef Q_OS_DARWIN_BROKEN
     : pool(objc_autoreleasePoolPush())
+#endif
 {
+#ifdef Q_OS_DARWIN_BROKEN
 #ifdef QT_DEBUG
     static const bool debugAutoReleasePools = qEnvironmentVariableIsSet("QT_DARWIN_DEBUG_AUTORELEASEPOOLS");
     if (!debugAutoReleasePools)
