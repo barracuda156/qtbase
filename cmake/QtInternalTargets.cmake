@@ -454,7 +454,9 @@ function(qt_handle_apple_app_extension_api_only)
     if(APPLE)
         # Build Qt libraries with -fapplication-extension. Needed to avoid linker warnings
         # transformed into errors on darwin platforms.
-        set(flags "-fapplication-extension")
+        if(CLANG)
+            set(flags "-fapplication-extension")
+        endif()
 
         # The flags should only be applied to internal Qt libraries like modules and plugins.
         # The reason why we use a custom property to apply the flags is because there's no other
