@@ -140,7 +140,7 @@ static bool isPackage(const QFileSystemMetaData &data, const QFileSystemEntry &e
         if (CFBundleGetPackageInfoInDirectory(url, &type, &creator))
             return true;
 
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_DARWIN_BROKEN
         // Find if an application other than Finder claims to know how to handle the package
         QCFType<CFURLRef> application = LSCopyDefaultApplicationURLForURL(url,
             kLSRolesEditor | kLSRolesViewer, nullptr);
@@ -606,7 +606,7 @@ QFileSystemEntry QFileSystemEngine::getLinkTarget(const QFileSystemEntry &link, 
             ret.chop(1);
         return QFileSystemEntry(ret);
     }
-#if defined(Q_OS_DARWIN)
+#if defined(Q_OS_DARWIN_BROKEN)
     {
         QCFString path = CFStringCreateWithFileSystemRepresentation(0,
             QFile::encodeName(QDir::cleanPath(link.filePath())).data());
