@@ -3,55 +3,65 @@
 
 #include "qoperatingsystemversion_p.h"
 
-#import <Foundation/Foundation.h>
-
 #include <QtCore/qfile.h>
 #include <QtCore/qversionnumber.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qdebug.h>
 
-#if !defined(QT_BOOTSTRAPPED)
-#include <QtCore/qprocess.h>
+#ifdef Q_OS_MACOS
+#  include <CoreServices/CoreServices.h>
 #endif
 
 QT_BEGIN_NAMESPACE
 
-using namespace Qt::StringLiterals;
-
 QOperatingSystemVersionBase QOperatingSystemVersionBase::current_impl()
 {
-    NSOperatingSystemVersion osv = NSProcessInfo.processInfo.operatingSystemVersion;
-    QVersionNumber versionNumber(osv.majorVersion, osv.minorVersion, osv.patchVersion);
+    int major = 10;
+    int minor = 0;
+    int micro = 0;
 
-    if (versionNumber.majorVersion() == 10 && versionNumber.minorVersion() >= 16) {
-        // The process is running in system version compatibility mode,
-        // due to the executable being built against a pre-macOS 11 SDK.
-        // This might happen even if we require a more recent SDK for
-        // building Qt applications, as the Qt 'app' might be a plugin
-        // hosted inside a host that used an earlier SDK. But, since we
-        // require a recent SDK for the Qt app itself, the application
-        // should be prepared for versions numbers beyond 10, and we can
-        // resolve the real version number here.
-#if !defined(QT_BOOTSTRAPPED) && QT_CONFIG(process)
-        QProcess sysctl;
-        QProcessEnvironment nonCompatEnvironment;
-        nonCompatEnvironment.insert("SYSTEM_VERSION_COMPAT"_L1, "0"_L1);
-        sysctl.setProcessEnvironment(nonCompatEnvironment);
-        sysctl.start("/usr/sbin/sysctl"_L1, QStringList() << "-b"_L1 << "kern.osproductversion"_L1);
-        if (sysctl.waitForFinished()) {
-            auto versionString = QString::fromLatin1(sysctl.readAll());
-            auto nonCompatSystemVersion = QVersionNumber::fromString(versionString);
-            if (!nonCompatSystemVersion.isNull())
-                versionNumber = nonCompatSystemVersion;
+#if defined(Q_OS_MACOS)
+    // Use Gestalt for pre-10.10
+    SInt32 gestaltVersion = 0;
+    if (Gestalt(gestaltSystemVersion, &gestaltVersion) == noErr) {
+        // gestaltSystemVersion is 0xMMmmbb (MM=major, mm=minor, bb=bugfix)
+        major = ((gestaltVersion & 0xFF0000) >> 16);
+        minor = ((gestaltVersion & 0x00FF00) >> 8);
+        micro = (gestaltVersion & 0x0000FF);
+
+        // On 10.4+, gestaltSystemVersion is reliable
+        // But for versions >= 10.10, it may return 10.9 for compatibility,
+        // so check SystemVersion.plist as fallback
+        if (major == 10 && minor == 9) {
+            QFile vfile(QStringLiteral("/System/Library/CoreServices/SystemVersion.plist"));
+            if (vfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QByteArray data = vfile.readAll();
+                vfile.close();
+                // Look for <key>ProductVersion</key><string>X.Y.Z</string>
+                QByteArray key = "<key>ProductVersion</key>";
+                int idx = data.indexOf(key);
+                if (idx >= 0) {
+                    int sidx = data.indexOf("<string>", idx);
+                    int eidx = data.indexOf("</string>", sidx);
+                    if (sidx > 0 && eidx > sidx) {
+                        QByteArray version = data.mid(sidx + 8, eidx - sidx - 8).trimmed();
+                        QList<QByteArray> parts = version.split('.');
+                        if (parts.size() > 1) {
+                            major = parts.at(0).toInt();
+                            minor = parts.at(1).toInt();
+                            micro = parts.size() > 2 ? parts.at(2).toInt() : 0;
+                        }
+                    }
+                }
+            }
         }
-#endif
     }
+#endif
 
     QOperatingSystemVersionBase operatingSystemVersion;
     operatingSystemVersion.m_os = currentType();
-    operatingSystemVersion.m_major = versionNumber.majorVersion();
-    operatingSystemVersion.m_minor = versionNumber.minorVersion();
-    operatingSystemVersion.m_micro = versionNumber.microVersion();
-
+    operatingSystemVersion.m_major = major;
+    operatingSystemVersion.m_minor = minor;
+    operatingSystemVersion.m_micro = micro;
     return operatingSystemVersion;
 }
-
-QT_END_NAMESPACE
