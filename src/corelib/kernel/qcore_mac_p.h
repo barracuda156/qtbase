@@ -336,7 +336,8 @@ class Q_CORE_EXPORT QMacNotificationObserver
 public:
     QMacNotificationObserver() {}
 
-#if defined( __OBJC__)
+    // FIXME: blocks are used here!
+#if defined( __OBJC__) && defined(__clang__)
     template<typename Functor>
     QMacNotificationObserver(NSObject *object, NSNotificationName name, Functor callback) {
         observer = [[NSNotificationCenter defaultCenter] addObserverForName:name
@@ -348,7 +349,6 @@ public:
             }
         ];
     }
-#endif
 
     QMacNotificationObserver(const QMacNotificationObserver &other) = delete;
     QMacNotificationObserver(QMacNotificationObserver &&other)
@@ -363,7 +363,7 @@ public:
     {
         qt_ptr_swap(observer, other.observer);
     }
-
+#endif
     void remove();
     ~QMacNotificationObserver() { remove(); }
 

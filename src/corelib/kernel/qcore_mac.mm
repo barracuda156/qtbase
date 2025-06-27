@@ -611,9 +611,11 @@ Q_CONSTRUCTOR_FUNCTION(qt_apple_check_os_version);
 
 void QMacNotificationObserver::remove()
 {
+#if defined(__clang__)
     if (observer)
         [[NSNotificationCenter defaultCenter] removeObserver:observer];
     observer = nullptr;
+#endif
 }
 
 // -------------------------------------------------------------------------
