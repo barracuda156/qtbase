@@ -142,7 +142,7 @@ Q_CONSTINIT static QBasicAtomicPointer<QCoreApplication> g_self = nullptr;
 #  define qApp g_self.loadRelaxed()
 
 #if !defined(Q_OS_WIN)
-#ifdef Q_OS_DARWIN
+#ifdef Q_OS_DARWIN_BROKEN
 QString QCoreApplicationPrivate::infoDictionaryStringProperty(const QString &propertyName)
 {
     QString bundleName;
@@ -157,7 +157,7 @@ QString QCoreApplicationPrivate::infoDictionaryStringProperty(const QString &pro
 QString QCoreApplicationPrivate::appName() const
 {
     QString applicationName;
-#ifdef Q_OS_DARWIN
+#ifdef Q_OS_DARWIN_BROKEN
     applicationName = infoDictionaryStringProperty(QStringLiteral("CFBundleName"));
 #endif
     if (applicationName.isEmpty() && argv[0]) {
@@ -171,7 +171,7 @@ QString QCoreApplicationPrivate::appVersion() const
 {
     QString applicationVersion;
 #ifdef QT_BOOTSTRAPPED
-#elif defined(Q_OS_DARWIN)
+#elif defined(Q_OS_DARWIN_BROKEN)
     applicationVersion = infoDictionaryStringProperty(QStringLiteral("CFBundleVersion"));
 #elif defined(Q_OS_ANDROID)
     QJniObject context(QNativeInterface::QAndroidApplication::context());
@@ -3051,7 +3051,7 @@ QStringList QCoreApplication::libraryPathsLocked()
             }
         };
         setPathsFromEnv(qEnvironmentVariable("QT_PLUGIN_PATH"));
-#ifdef Q_OS_DARWIN
+#ifdef Q_OS_DARWIN_BROKEN
         // Check the main bundle's PlugIns directory as this is a standard location for Apple OSes.
         // Note that the QLibraryInfo::PluginsPath below will coincidentally be the same as this value
         // but with a different casing, so it can't be relied upon when the underlying filesystem
@@ -3069,7 +3069,7 @@ QStringList QCoreApplication::libraryPathsLocked()
                 }
             }
         }
-#endif // Q_OS_DARWIN
+#endif // Q_OS_DARWIN_BROKEN
 
         QString installPathPlugins =  QLibraryInfo::path(QLibraryInfo::PluginsPath);
         if (QFile::exists(installPathPlugins)) {
