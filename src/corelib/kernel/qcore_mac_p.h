@@ -44,6 +44,10 @@ kern_return_t IOObjectRelease(io_object_t object);
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef verify
+#undef verify
+#endif
+
 #ifdef __OBJC__
 #include <Foundation/Foundation.h>
 #include <functional>
