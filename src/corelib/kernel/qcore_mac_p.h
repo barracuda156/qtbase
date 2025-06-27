@@ -537,11 +537,13 @@ private:
     {
         if (!m_object)
             return;
-
+// FIXME
+#ifdef Q_OS_DARWIN_BROKEN
         auto *lifetimeTracker = [WeakPointerLifetimeTracker new];
         lifetimeTracker.pointer = reinterpret_cast<QObjCWeakPointer<NSObject>*>(this);
         objc_setAssociatedObject(m_object, this, lifetimeTracker, OBJC_ASSOCIATION_RETAIN);
         [lifetimeTracker release];
+#endif
     }
 #endif
     NSObject *m_object = nil;
