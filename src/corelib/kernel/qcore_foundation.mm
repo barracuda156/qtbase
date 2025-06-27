@@ -312,6 +312,8 @@ CFUUIDRef QUuid::toCFUUID() const
     \since 5.7
     \ingroup platform-type-conversions
 */
+#ifdef Q_OS_DARWIN_BROKEN
+
 QUuid QUuid::fromNSUUID(const NSUUID *uuid)
 {
     if (!uuid)
@@ -339,6 +341,8 @@ NSUUID *QUuid::toNSUUID() const
     memcpy(&u, &bytes, sizeof(uuid_t));
     return [[[NSUUID alloc] initWithUUIDBytes:u] autorelease];
 }
+
+#endif // Q_OS_DARWIN_BROKEN
 
 // ----------------------------------------------------------------------------
 
