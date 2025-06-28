@@ -44,6 +44,8 @@ kern_return_t IOObjectRelease(io_object_t object);
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include <AvailabilityMacros.h>
+
 #ifdef __OBJC__
 #include <Foundation/Foundation.h>
 #include <functional>
@@ -51,6 +53,11 @@ kern_return_t IOObjectRelease(io_object_t object);
 
 #include "qstring.h"
 #include "qpair.h"
+
+#if !defined(QT_BOOTSTRAPPED) && MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#define QT_USE_APPLE_ACTIVITIES
+#define QT_USE_APPLE_UNIFIED_LOGGING
+#endif
 
 #if defined( __OBJC__) && defined(QT_NAMESPACE)
 #define QT_NAMESPACE_ALIAS_OBJC_CLASS(__KLASS__) @compatibility_alias __KLASS__ QT_MANGLE_NAMESPACE(__KLASS__)
@@ -224,8 +231,7 @@ Q_CORE_EXPORT AppleApplication *qt_apple_sharedApplication();
 
 // --------------------------------------------------------------------------
 
-#if !defined(QT_BOOTSTRAPPED)
-#define QT_USE_APPLE_UNIFIED_LOGGING
+#if defined(QT_USE_APPLE_UNIFIED_LOGGING)
 
 QT_END_NAMESPACE
 #include <os/log.h>
@@ -249,7 +255,7 @@ private:
 
 // --------------------------------------------------------------------------
 
-#if !defined(QT_BOOTSTRAPPED)
+#if defined(QT_USE_APPLE_ACTIVITIES)
 
 QT_END_NAMESPACE
 #include <os/activity.h>
@@ -320,7 +326,12 @@ QT_MAC_WEAK_IMPORT(_os_activity_current);
 
 #define QT_APPLE_SCOPED_LOG_ACTIVITY(...) QAppleLogActivity scopedLogActivity = QT_APPLE_LOG_ACTIVITY(__VA_ARGS__).enter();
 
-#endif // !defined(QT_BOOTSTRAPPED)
+#else
+// No-ops
+#define QT_APPLE_LOG_ACTIVITY_WITH_PARENT(...)
+#define QT_APPLE_LOG_ACTIVITY(...)
+
+#endif // QT_USE_APPLE_ACTIVITIES
 
 // -------------------------------------------------------------------------
 
