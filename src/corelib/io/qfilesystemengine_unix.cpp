@@ -42,7 +42,10 @@
 # include <UniformTypeIdentifiers/UTType.h>
 # include <UniformTypeIdentifiers/UTCoreTypes.h>
 # include <Foundation/Foundation.h>
-# include <sys/clonefile.h>
+# include <AvailabilityMacros.h>
+# if MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#  include <sys/clonefile.h>
+# endif
 # include <copyfile.h>
 #endif
 
@@ -1553,7 +1556,7 @@ bool QFileSystemEngine::moveFileToTrash(const QFileSystemEntry &source,
 //static
 bool QFileSystemEngine::copyFile(const QFileSystemEntry &source, const QFileSystemEntry &target, QSystemError &error)
 {
-#if defined(Q_OS_DARWIN)
+#if defined(Q_OS_DARWIN) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 101200)
     if (::clonefile(source.nativeFilePath().constData(),
                     target.nativeFilePath().constData(), 0) == 0)
         return true;
@@ -1562,7 +1565,7 @@ bool QFileSystemEngine::copyFile(const QFileSystemEntry &source, const QFileSyst
 #else
     Q_UNUSED(source);
     Q_UNUSED(target);
-    error = QSystemError(ENOSYS, QSystemError::StandardLibraryError); //Function not implemented
+    error = QSystemError(ENOSYS, QSystemError::StandardLibraryError); // Function not implemented
     return false;
 #endif
 }
@@ -1586,7 +1589,7 @@ bool QFileSystemEngine::renameFile(const QFileSystemEntry &source, const QFileSy
         return false;
     }
 #endif
-#if defined(Q_OS_DARWIN) && defined(RENAME_EXCL)
+#if defined(Q_OS_DARWIN) && defined(RENAME_EXCL) && (MAC_OS_X_VERSION_MIN_REQUIRED >= 101200)
     if (renameatx_np(AT_FDCWD, srcPath, AT_FDCWD, tgtPath, RENAME_EXCL) == 0)
         return true;
     if (errno != ENOTSUP) {
