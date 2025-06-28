@@ -6,6 +6,7 @@
 
 #ifdef Q_OS_MACOS
 #include <AppKit/AppKit.h>
+#include <AvailabilityMacros.h>
 #endif
 
 #if defined(QT_PLATFORM_UIKIT)
@@ -573,6 +574,8 @@ QMacKeyValueObserver::QMacKeyValueObserver(const QMacKeyValueObserver &other)
 {
 }
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+
 void QMacKeyValueObserver::addObserver(NSKeyValueObservingOptions options)
 {
     [object addObserver:observer forKeyPath:keyPath options:options context:callback.get()];
@@ -599,6 +602,8 @@ QT_END_NAMESPACE
 }
 @end
 QT_BEGIN_NAMESPACE
+
+#endif
 
 // -------------------------------------------------------------------------
 

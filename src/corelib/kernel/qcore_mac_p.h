@@ -375,6 +375,8 @@ private:
     NSObject *observer = nullptr;
 };
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+
 QT_END_NAMESPACE
 QT_DECLARE_NAMESPACED_OBJC_INTERFACE(KeyValueObserver, NSObject)
 QT_BEGIN_NAMESPACE
@@ -431,6 +433,8 @@ private:
 
     static KeyValueObserver *observer;
 };
+
+#endif
 
 // -------------------------------------------------------------------------
 
