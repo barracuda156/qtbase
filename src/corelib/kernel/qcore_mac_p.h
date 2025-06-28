@@ -51,6 +51,10 @@ kern_return_t IOObjectRelease(io_object_t object);
 #include <functional>
 #endif
 
+#ifdef slots
+#undef slots
+#endif
+
 #ifdef verify
 #undef verify
 #endif
