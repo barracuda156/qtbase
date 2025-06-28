@@ -24,12 +24,14 @@
 #ifdef Q_OS_MACOS
 #include <mach/port.h>
 struct mach_header;
+#ifdef USE_QAPPLEREFCOUNTED // Used with that
 typedef int kern_return_t;
 typedef mach_port_t io_object_t;
 extern "C" {
 kern_return_t IOObjectRetain(io_object_t object);
 kern_return_t IOObjectRelease(io_object_t object);
 }
+#endif
 #endif
 
 #ifndef __IMAGECAPTURE__
@@ -97,6 +99,7 @@ Q_FORWARD_DECLARE_OBJC_CLASS(NSString);
 #define QtExtras QT_MANGLE_NAMESPACE(QtExtras)
 
 QT_BEGIN_NAMESPACE
+#ifdef USE_QAPPLEREFCOUNTED
 template <typename T, typename U, auto RetainFunction, auto ReleaseFunction>
 class QAppleRefCounted
 {
@@ -127,6 +130,7 @@ public:
 protected:
     T value;
 };
+#endif
 
 class QMacAutoReleasePool
 {
@@ -162,19 +166,48 @@ private:
     HIThemeGet*Shape functions, which in reality are "Copy" functions.
 */
 template <typename T>
+#ifdef USE_QAPPLEREFCOUNTED
 class QCFType : public QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>
+#else
+class Q_CORE_EXPORT QCFType
+#endif
 {
+public:
+#ifdef USE_QAPPLEREFCOUNTED
     using QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>::QAppleRefCounted;
     template <typename X> X as() const { return reinterpret_cast<X>(this->value); }
+#else
+    inline QCFType(const T &t = 0) : type(t) {}
+    inline QCFType(const QCFType &helper) : type(helper.type) { if (type) CFRetain(type); }
+    inline ~QCFType() { if (type) CFRelease(type); }
+    inline operator T() { return type; }
+    inline QCFType operator =(const QCFType &helper)
+    {
+        if (helper.type)
+            CFRetain(helper.type);
+        CFTypeRef type2 = type;
+        type = helper.type;
+        if (type2)
+            CFRelease(type2);
+        return *this;
+    }
+    inline T *operator&() { return &type; }
+    template <typename X> X as() const { return reinterpret_cast<X>(type); }
+#endif
     static QCFType constructFromGet(const T &t)
     {
         if (t)
             CFRetain(t);
         return QCFType<T>(t);
     }
+#ifndef USE_QAPPLEREFCOUNTED
+protected:
+    T type;
+#endif
 };
 
-#ifdef Q_OS_MACOS
+// This is only used for Cocoa code, so does not need a fallback.
+#if defined(Q_OS_MACOS) && defined(USE_QAPPLEREFCOUNTED)
 template <typename T>
 class QIOType : public QAppleRefCounted<T, io_object_t, IOObjectRetain, IOObjectRelease>
 {
@@ -185,7 +218,9 @@ class QIOType : public QAppleRefCounted<T, io_object_t, IOObjectRetain, IOObject
 class QCFString : public QCFType<CFStringRef>
 {
 public:
+#ifdef USE_QAPPLEREFCOUNTED
     using QCFType<CFStringRef>::QCFType;
+#endif
     inline QCFString(const QString &str) : QCFType<CFStringRef>(0), string(str) {}
     inline QCFString(const CFStringRef cfstr = 0) : QCFType<CFStringRef>(cfstr) {}
     inline QCFString(const QCFType<CFStringRef> &other) : QCFType<CFStringRef>(other) {}
