@@ -457,7 +457,7 @@ AppleApplication *qt_apple_sharedApplication()
 
 #if !defined(QT_BOOTSTRAPPED)
 
-#if defined(Q_OS_MACOS)
+#if defined(Q_OS_MACOS) && MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 namespace {
 struct SandboxChecker
 {

@@ -212,7 +212,7 @@ Q_CORE_EXPORT QDebug operator<<(QDebug debug, const QCFString &string);
 
 Q_CORE_EXPORT bool qt_apple_isApplicationExtension();
 
-#if !defined(QT_BOOTSTRAPPED)
+#if !defined(QT_BOOTSTRAPPED) && MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 Q_CORE_EXPORT bool qt_apple_isSandboxed();
 
 #if defined(__OBJC__)
