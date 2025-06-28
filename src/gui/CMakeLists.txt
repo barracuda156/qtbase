@@ -426,11 +426,11 @@ qt_internal_extend_target(Gui CONDITION APPLE
         text/coretext/qfontengine_coretext.mm text/coretext/qfontengine_coretext_p.h
     LIBRARIES
         ${FWCoreFoundation}
-        ${FWCoreGraphics}
-        ${FWCoreText}
+#         ${FWCoreGraphics}
+#         ${FWCoreText}
         ${FWFoundation}
-    PUBLIC_LIBRARIES
-        ${FWImageIO}
+#     PUBLIC_LIBRARIES
+#         ${FWImageIO}
 )
 
 qt_internal_extend_target(Gui CONDITION (APPLE AND NOT QT_GUI_X11) AND QT_FEATURE_metal
