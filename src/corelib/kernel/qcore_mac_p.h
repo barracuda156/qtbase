@@ -197,7 +197,9 @@ private:
 };
 
 #ifdef Q_OS_MACOS
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
 Q_CORE_EXPORT bool qt_mac_applicationIsInDarkMode();
+#endif
 #ifndef __POWERPC__ // Wrong Rosetta
 Q_CORE_EXPORT bool qt_mac_runningUnderRosetta();
 #endif

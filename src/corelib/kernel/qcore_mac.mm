@@ -326,13 +326,14 @@ QDebug operator<<(QDebug debug, const QCFString &string)
 }
 #endif // !QT_NO_DEBUG_STREAM
 
-#ifdef Q_OS_MACOS
+#ifdef Q_OS_MACOS && MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
 bool qt_mac_applicationIsInDarkMode()
 {
     auto appearance = [NSApp.effectiveAppearance bestMatchFromAppearancesWithNames:
             @[ NSAppearanceNameAqua, NSAppearanceNameDarkAqua ]];
     return [appearance isEqualToString:NSAppearanceNameDarkAqua];
 }
+#endif
 
 #ifndef __POWERPC__ // Wrong Rosetta
 bool qt_mac_runningUnderRosetta()
