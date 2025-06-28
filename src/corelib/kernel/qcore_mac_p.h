@@ -149,10 +149,7 @@ private:
 template <typename T>
 class QCFType : public QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>
 {
-    using Base = QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>;
-public:
-    using Base::Base;
-    Q_NODISCARD_CTOR explicit QCFType(CFTypeRef r) : Base(static_cast<T>(r)) {}
+    using QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>::QAppleRefCounted;
     template <typename X> X as() const { return reinterpret_cast<X>(this->value); }
     static QCFType constructFromGet(const T &t)
     {
@@ -174,11 +171,11 @@ class QCFString : public QCFType<CFStringRef>
 {
 public:
     using QCFType<CFStringRef>::QCFType;
-    Q_NODISCARD_CTOR QCFString(const QString &str) : QCFType<CFStringRef>(0), string(str) {}
-    Q_NODISCARD_CTOR QCFString(const CFStringRef cfstr = 0) : QCFType<CFStringRef>(cfstr) {}
-    Q_NODISCARD_CTOR QCFString(const QCFType<CFStringRef> &other) : QCFType<CFStringRef>(other) {}
-    Q_CORE_EXPORT operator QString() const;
-    Q_CORE_EXPORT operator CFStringRef() const;
+    inline QCFString(const QString &str) : QCFType<CFStringRef>(0), string(str) {}
+    inline QCFString(const CFStringRef cfstr = 0) : QCFType<CFStringRef>(cfstr) {}
+    inline QCFString(const QCFType<CFStringRef> &other) : QCFType<CFStringRef>(other) {}
+    operator QString() const;
+    operator CFStringRef() const;
 
 private:
     QString string;
