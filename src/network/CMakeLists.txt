@@ -231,7 +231,7 @@ qt_internal_extend_target(Network CONDITION APPLE AND NOT UIKIT
 
 qt_internal_extend_target(Network CONDITION APPLE
     LIBRARIES
-        ${FWCFNetwork}
+        "-framework CFNetwork"
 )
 
 qt_internal_extend_target(Network CONDITION QT_FEATURE_dnslookup AND QT_FEATURE_libresolv
