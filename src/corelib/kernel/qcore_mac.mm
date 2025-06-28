@@ -21,6 +21,7 @@
 #include <mach-o/dyld.h>
 #include <sys/sysctl.h>
 #include <spawn.h>
+#include <crt_externs.h>
 
 #include <qdebug.h>
 
@@ -44,7 +45,7 @@ int responsibility_spawnattrs_setdisclaim(posix_spawnattr_t attrs, int disclaim)
 __attribute__((availability(macos,introduced=10.14),weak_import));
 pid_t responsibility_get_pid_responsible_for_pid(pid_t) __attribute__((weak_import));
 char *** _NSGetArgv();
-extern char **environ;
+# define environ (*_NSGetEnviron())
 #endif
 }
 #endif
