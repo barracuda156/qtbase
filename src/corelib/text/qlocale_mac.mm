@@ -154,6 +154,23 @@ static QVariant macDayName(int day, QSystemLocale::QueryType type)
     return {};
 }
 
+#ifdef __OBJC__
+@interface QLocaleMacLocaleChangeObserver : NSObject
+@end
+
+@implementation QLocaleMacLocaleChangeObserver
+- (void)localeDidChange:(NSNotification *)notification
+{
+    qCDebug(lcLocale) << "System locale changed";
+    cachedZeroDigit = QString();
+}
+@end
+static QLocaleMacLocaleChangeObserver *localeChangeReceiver = [[QLocaleMacLocaleChangeObserver alloc] init];
+static QMacNotificationObserver localeChangeObserver = QMacNotificationObserver(
+    nil, NSCurrentLocaleDidChangeNotification, localeChangeReceiver, @selector(localeDidChange:)
+);
+#endif
+
 static QString macZeroDigit()
 {
     static QString cachedZeroDigit;
@@ -168,12 +185,6 @@ static QString macZeroDigit()
                                                      kCFNumberIntType, &zeroDigit);
         cachedZeroDigit = QString::fromCFString(value);
     }
-
-    static QMacNotificationObserver localeChangeObserver = QMacNotificationObserver(
-        nil, NSCurrentLocaleDidChangeNotification, [&] {
-            qCDebug(lcLocale) << "System locale changed";
-            cachedZeroDigit = QString();
-    });
 
     return cachedZeroDigit;
 }

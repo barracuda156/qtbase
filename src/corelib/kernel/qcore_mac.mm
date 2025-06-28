@@ -562,9 +562,13 @@ QMacRootLevelAutoReleasePool::~QMacRootLevelAutoReleasePool()
 
 void QMacNotificationObserver::remove()
 {
-    if (observer)
-        [[NSNotificationCenter defaultCenter] removeObserver:observer];
-    observer = nullptr;
+#if defined(__OBJC__)
+    if (observer && target) {
+        [[NSNotificationCenter defaultCenter] removeObserver:target];
+        observer = nullptr;
+        target = nullptr;
+    }
+#endif
 }
 
 // -------------------------------------------------------------------------

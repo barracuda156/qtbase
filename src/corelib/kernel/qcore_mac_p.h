@@ -338,41 +338,78 @@ QT_MAC_WEAK_IMPORT(_os_activity_current);
 class Q_CORE_EXPORT QMacNotificationObserver
 {
 public:
-    QMacNotificationObserver() {}
+    QMacNotificationObserver() : observer(nullptr), target(nullptr) {}
 
-#if defined( __OBJC__)
-    template<typename Functor>
-    QMacNotificationObserver(NSObject *object, NSNotificationName name, Functor callback) {
-        observer = [[NSNotificationCenter defaultCenter] addObserverForName:name
-            object:object queue:nil usingBlock:^(NSNotification *notification) {
-                if constexpr (std::is_invocable_v<Functor, NSNotification *>)
-                    callback(notification);
-                else
-                    callback();
-            }
-        ];
+#if defined(__OBJC__)
+    // Classic selector-based observer; callbackSelector must be an Objective-C selector on the target object
+    QMacNotificationObserver(NSObject *object, NSNotificationName name, NSObject *target, SEL callbackSelector)
+        : observer(nullptr), target(nil)
+    {
+        initialize(object, name, target, callbackSelector);
+    }
+
+    // For delayed/explicit initialization
+    void initialize(NSObject *object, NSNotificationName name, NSObject *targetObject, SEL callbackSelector)
+    {
+        remove();
+        observer = nil;
+        if (object && name && targetObject && callbackSelector) {
+            [[NSNotificationCenter defaultCenter] addObserver:targetObject
+                                                    selector:callbackSelector
+                                                    name:name
+                                                    object:object];
+            observer = targetObject; // record for removal
+            target = targetObject;
+        }
     }
 #endif
 
     QMacNotificationObserver(const QMacNotificationObserver &other) = delete;
+
     QMacNotificationObserver(QMacNotificationObserver &&other)
-        : observer(std::exchange(other.observer, nullptr))
+        : observer(other.observer)
+        , target(other.target)
     {
+        other.observer = nullptr;
+        other.target = nullptr;
     }
 
     QMacNotificationObserver &operator=(const QMacNotificationObserver &other) = delete;
-    QT_MOVE_ASSIGNMENT_OPERATOR_IMPL_VIA_MOVE_AND_SWAP(QMacNotificationObserver)
+
+    QMacNotificationObserver &operator=(QMacNotificationObserver &&other)
+    {
+        if (this != &other) {
+            remove();
+            observer = other.observer;
+            target = other.target;
+            other.observer = nullptr;
+            other.target = nullptr;
+        }
+        return *this;
+    }
 
     void swap(QMacNotificationObserver &other) noexcept
     {
         qt_ptr_swap(observer, other.observer);
+        qt_ptr_swap(target, other.target);
     }
 
-    void remove();
+    void remove()
+    {
+#if defined(__OBJC__)
+        if (observer && target) {
+            [[NSNotificationCenter defaultCenter] removeObserver:target];
+            observer = nullptr;
+            target = nullptr;
+        }
+#endif
+    }
+
     ~QMacNotificationObserver() { remove(); }
 
 private:
-    NSObject *observer = nullptr;
+    NSObject *observer;
+    NSObject *target;
 };
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
