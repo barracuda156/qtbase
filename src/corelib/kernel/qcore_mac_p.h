@@ -537,7 +537,7 @@ QT_END_NAMESPACE
 #include <objc/runtime.h>
 Q_CORE_EXPORT
 QT_DECLARE_NAMESPACED_OBJC_INTERFACE(WeakPointerLifetimeTracker, NSObject
-@property (atomic, assign) QT_PREPEND_NAMESPACE(QObjCWeakPointer)<NSObject> *pointer;
+[lifetimeTracker setPointer:(QObjCWeakPointer<NSObject> *)this];
 )
 QT_BEGIN_NAMESPACE
 #endif

@@ -467,7 +467,8 @@ struct SandboxChecker
     SandboxChecker() : m_thread([this]{
             m_isSandboxed = []{
                 QCFType<SecStaticCodeRef> staticCode = nullptr;
-                NSURL *executableUrl = NSBundle.mainBundle.executableURL;
+                NSString *executablePath = [[NSBundle mainBundle] executablePath];
+                CFURLRef executableUrl = CFURLCreateWithFileSystemPath(NULL, (CFStringRef)executablePath, kCFURLPOSIXPathStyle, false);
                 if (SecStaticCodeCreateWithPath((__bridge CFURLRef)executableUrl,
                     kSecCSDefaultFlags, &staticCode) != errSecSuccess)
                     return false;
