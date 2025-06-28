@@ -590,8 +590,8 @@ private:
         if (!m_object)
             return;
 
-        auto *lifetimeTracker = [WeakPointerLifetimeTracker new];
-        lifetimeTracker.pointer = reinterpret_cast<QObjCWeakPointer<NSObject>*>(this);
+        WeakPointerLifetimeTracker *lifetimeTracker = [WeakPointerLifetimeTracker new];
+        [lifetimeTracker setPointer:(QObjCWeakPointer<NSObject> *)this];
         objc_setAssociatedObject(m_object, this, lifetimeTracker, OBJC_ASSOCIATION_RETAIN);
         [lifetimeTracker release];
     }
