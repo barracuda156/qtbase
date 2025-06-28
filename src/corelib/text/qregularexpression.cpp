@@ -981,7 +981,7 @@ static bool isJitEnabled()
 
 #ifdef QT_DEBUG
     return false;
-#elif defined(Q_OS_MACOS)
+#elif defined(Q_OS_MACOS) && !defined(__POWERPC__) // Wrong Rosetta
     return !qt_mac_runningUnderRosetta();
 #else
     return true;
