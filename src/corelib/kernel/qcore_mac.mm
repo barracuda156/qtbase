@@ -249,20 +249,10 @@ QT_USE_NAMESPACE
 QT_NAMESPACE_ALIAS_OBJC_CLASS(QMacAutoReleasePoolTracker);
 #endif // QT_DEBUG
 
-// Use the direct runtime interface to manage autorelease pools, as it
-// has less overhead then allocating NSAutoreleasePools, and allows for
-// a future where we use ARC (where NSAutoreleasePool is not allowed).
-// https://clang.llvm.org/docs/AutomaticReferenceCounting.html#runtime-support
-
-extern "C" {
-void *objc_autoreleasePoolPush(void);
-void objc_autoreleasePoolPop(void *pool);
-}
-
 QT_BEGIN_NAMESPACE
 
 QMacAutoReleasePool::QMacAutoReleasePool()
-    : pool(objc_autoreleasePoolPush())
+    : pool([[NSAutoreleasePool alloc] init])
 {
 #ifdef QT_DEBUG
     static const bool debugAutoReleasePools = qEnvironmentVariableIsSet("QT_DARWIN_DEBUG_AUTORELEASEPOOLS");
@@ -307,7 +297,7 @@ QMacAutoReleasePool::QMacAutoReleasePool()
 
 QMacAutoReleasePool::~QMacAutoReleasePool()
 {
-    objc_autoreleasePoolPop(pool);
+    [static_cast<NSAutoreleasePool *>(pool) release];
 }
 
 #ifndef QT_NO_DEBUG_STREAM
