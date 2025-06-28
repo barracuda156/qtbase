@@ -334,6 +334,7 @@ bool qt_mac_applicationIsInDarkMode()
     return [appearance isEqualToString:NSAppearanceNameDarkAqua];
 }
 
+#ifndef __POWERPC__ // Wrong Rosetta
 bool qt_mac_runningUnderRosetta()
 {
     int translated = 0;
@@ -342,6 +343,7 @@ bool qt_mac_runningUnderRosetta()
         return translated;
     return false;
 }
+#endif
 
 std::optional<uint32_t> qt_mac_sipConfiguration()
 {
