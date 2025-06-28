@@ -16,11 +16,12 @@
 #include <QtCore/private/qcore_mac_p.h>
 #endif
 
-#import <CoreFoundation/CoreFoundation.h>
-#import <Foundation/Foundation.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <Foundation/Foundation.h>
+#include <AvailabilityMacros.h>
 
 #if defined(QT_PLATFORM_UIKIT)
-#import <CoreGraphics/CoreGraphics.h>
+#include <CoreGraphics/CoreGraphics.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -312,6 +313,9 @@ CFUUIDRef QUuid::toCFUUID() const
     \since 5.7
     \ingroup platform-type-conversions
 */
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
+
 QUuid QUuid::fromNSUUID(const NSUUID *uuid)
 {
     if (!uuid)
@@ -339,6 +343,8 @@ NSUUID *QUuid::toNSUUID() const
     memcpy(&u, &bytes, sizeof(uuid_t));
     return [[[NSUUID alloc] initWithUUIDBytes:u] autorelease];
 }
+
+#endif
 
 // ----------------------------------------------------------------------------
 

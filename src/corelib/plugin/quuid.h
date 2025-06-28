@@ -4,6 +4,8 @@
 #ifndef QUUID_H
 #define QUUID_H
 
+#include <AvailabilityMacros.h>
+
 #include <QtCore/qcompare.h>
 #include <QtCore/qendian.h>
 #include <QtCore/qstring.h>
@@ -24,7 +26,9 @@ typedef struct _GUID
 
 #if defined(Q_OS_DARWIN) || defined(Q_QDOC)
 Q_FORWARD_DECLARE_CF_TYPE(CFUUID);
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
 Q_FORWARD_DECLARE_OBJC_CLASS(NSUUID);
+#endif
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -265,8 +269,10 @@ public:
 #if defined(Q_OS_DARWIN) || defined(Q_QDOC)
     static QUuid fromCFUUID(CFUUIDRef uuid);
     CFUUIDRef toCFUUID() const Q_DECL_CF_RETURNS_RETAINED;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
     static QUuid fromNSUUID(const NSUUID *uuid);
     NSUUID *toNSUUID() const Q_DECL_NS_RETURNS_AUTORELEASED;
+#endif
 #endif
 
     uint    data1;

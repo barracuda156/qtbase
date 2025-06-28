@@ -8,6 +8,7 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
+#include <AvailabilityMacros.h>
 
 void tst_QUuid_darwinTypes()
 {
@@ -32,6 +33,7 @@ void tst_QUuid_darwinTypes()
         CFRelease(cfstring);
         CFRelease(cfuuid);
     }
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080
     // QUuid <-> NSUUID
     {
         QMacAutoReleasePool pool;
@@ -51,4 +53,5 @@ void tst_QUuid_darwinTypes()
         QCOMPARE(QUuid::fromNSUUID(nsuuid), qtUuidCopy);
         QCOMPARE(QString::fromNSString([nsuuid UUIDString]), qtUuidCopy.toString().mid(1, 36).toUpper());
     }
+#endif
 }
