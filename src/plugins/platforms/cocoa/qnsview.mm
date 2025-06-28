@@ -5,7 +5,6 @@
 
 #include <AppKit/AppKit.h>
 #include <MetalKit/MetalKit.h>
-#include <UniformTypeIdentifiers/UTCoreTypes.h>
 
 #include "qnsview.h"
 #include "qcocoawindow.h"

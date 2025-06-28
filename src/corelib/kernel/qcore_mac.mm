@@ -35,6 +35,10 @@
 #include <thread>
 #endif
 
+#ifndef kIOMainPortDefault
+#define kIOMainPortDefault kIOMasterPortDefault
+#endif
+
 #if !defined(QT_APPLE_NO_PRIVATE_APIS)
 extern "C" {
 typedef uint32_t csr_config_t;

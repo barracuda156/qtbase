@@ -20,6 +20,10 @@
 #include <QtCore/private/qcore_mac_p.h>
 #include <QtCore/private/qeventdispatcher_cf_p.h>
 
+#ifndef kIOMainPortDefault
+#define kIOMainPortDefault kIOMasterPortDefault
+#endif
+
 QT_BEGIN_NAMESPACE
 
 namespace CoreGraphics {
