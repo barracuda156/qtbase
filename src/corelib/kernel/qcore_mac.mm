@@ -559,56 +559,6 @@ QMacRootLevelAutoReleasePool::~QMacRootLevelAutoReleasePool()
 
 // -------------------------------------------------------------------------
 
-void qt_apple_check_os_version()
-{
-#if defined(__WATCH_OS_VERSION_MIN_REQUIRED)
-    const char *os = "watchOS";
-    const int version = __WATCH_OS_VERSION_MIN_REQUIRED;
-#elif defined(__TV_OS_VERSION_MIN_REQUIRED)
-    const char *os = "tvOS";
-    const int version = __TV_OS_VERSION_MIN_REQUIRED;
-#elif defined(__VISION_OS_VERSION_MIN_REQUIRED)
-    const char *os = "visionOS";
-    const int version = __VISION_OS_VERSION_MIN_REQUIRED;
-#elif defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
-    const char *os = "iOS";
-    const int version = __IPHONE_OS_VERSION_MIN_REQUIRED;
-#elif defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-    const char *os = "macOS";
-    const int version = __MAC_OS_X_VERSION_MIN_REQUIRED;
-#endif
-
-    const auto required = QVersionNumber(version / 10000, version / 100 % 100, version % 100);
-    const auto current = QOperatingSystemVersion::current().version();
-
-#if defined(Q_OS_MACOS)
-    // Check for compatibility version, in which case we can't do a
-    // comparison to the deployment target, which might be e.g. 11.0
-    if (current.majorVersion() == 10 && current.minorVersion() >= 16)
-        return;
-#endif
-
-    if (current < required) {
-        NSDictionary *plist = NSBundle.mainBundle.infoDictionary;
-        NSString *applicationName = plist[@"CFBundleDisplayName"];
-        if (!applicationName)
-            applicationName = plist[@"CFBundleName"];
-        if (!applicationName)
-            applicationName = NSProcessInfo.processInfo.processName;
-
-        fprintf(stderr, "Sorry, \"%s\" cannot be run on this version of %s. "
-            "Qt requires %s %ld.%ld.%ld or later, you have %s %ld.%ld.%ld.\n",
-            applicationName.UTF8String, os,
-            os, long(required.majorVersion()), long(required.minorVersion()), long(required.microVersion()),
-            os, long(current.majorVersion()), long(current.minorVersion()), long(current.microVersion()));
-
-        exit(1);
-    }
-}
-Q_CONSTRUCTOR_FUNCTION(qt_apple_check_os_version);
-
-// -------------------------------------------------------------------------
-
 void QMacNotificationObserver::remove()
 {
     if (observer)
