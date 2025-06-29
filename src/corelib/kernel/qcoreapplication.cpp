@@ -143,12 +143,10 @@ Q_CONSTINIT static QBasicAtomicPointer<QCoreApplication> g_self = nullptr;
 
 #if !defined(Q_OS_WIN)
 #ifdef Q_OS_DARWIN
-QString QCoreApplicationPrivate::infoDictionaryStringProperty(const QString &propertyName)
+QString QCoreApplicationPrivate::macMenuBarName()
 {
     QString bundleName;
-    QCFString cfPropertyName = propertyName.toCFString();
-    CFTypeRef string = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(),
-                                                            cfPropertyName);
+    CFTypeRef string = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), CFSTR("CFBundleName"));
     if (string)
         bundleName = QString::fromCFString(static_cast<CFStringRef>(string));
     return bundleName;
@@ -158,7 +156,7 @@ QString QCoreApplicationPrivate::appName() const
 {
     QString applicationName;
 #ifdef Q_OS_DARWIN
-    applicationName = infoDictionaryStringProperty(QStringLiteral("CFBundleName"));
+    applicationName = macMenuBarName();
 #endif
     if (applicationName.isEmpty() && argv[0]) {
         char *p = strrchr(argv[0], '/');
@@ -166,33 +164,6 @@ QString QCoreApplicationPrivate::appName() const
     }
 
     return applicationName;
-}
-QString QCoreApplicationPrivate::appVersion() const
-{
-    QString applicationVersion;
-#ifdef QT_BOOTSTRAPPED
-#elif defined(Q_OS_DARWIN)
-    applicationVersion = infoDictionaryStringProperty(QStringLiteral("CFBundleVersion"));
-#elif defined(Q_OS_ANDROID)
-    QJniObject context(QNativeInterface::QAndroidApplication::context());
-    if (context.isValid()) {
-        QJniObject pm = context.callObjectMethod(
-            "getPackageManager", "()Landroid/content/pm/PackageManager;");
-        QJniObject pn = context.callObjectMethod<jstring>("getPackageName");
-        if (pm.isValid() && pn.isValid()) {
-            QJniObject packageInfo = pm.callObjectMethod(
-                "getPackageInfo", "(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;",
-                pn.object(), 0);
-            if (packageInfo.isValid()) {
-                QJniObject versionName = packageInfo.getObjectField(
-                    "versionName", "Ljava/lang/String;");
-                if (versionName.isValid())
-                    return versionName.toString();
-            }
-        }
-    }
-#endif
-    return applicationVersion;
 }
 #endif // !Q_OS_WIN
 
@@ -368,7 +339,6 @@ struct QCoreApplicationData
 {
     QCoreApplicationData() noexcept {
         applicationNameSet = false;
-        applicationVersionSet = false;
     }
     ~QCoreApplicationData() {
 #if !defined(QT_NO_QOBJECT) && defined(Q_OS_WIN)
@@ -385,7 +355,6 @@ struct QCoreApplicationData
     QString application; // application name, initially from argv[0], can then be modified.
     QString applicationVersion;
     bool applicationNameSet; // true if setApplicationName was called
-    bool applicationVersionSet; // true if setApplicationVersion was called
 
 #if QT_CONFIG(library)
     std::unique_ptr<QStringList> app_libpaths;
@@ -883,9 +852,6 @@ void Q_TRACE_INSTRUMENT(qtcore) QCoreApplicationPrivate::init()
     // Store app name/version (so they're still available after QCoreApplication is destroyed)
     if (!coreappdata()->applicationNameSet)
         coreappdata()->application = appName();
-
-    if (!coreappdata()->applicationVersionSet)
-        coreappdata()->applicationVersion = appVersion();
 
 #if defined(Q_OS_ANDROID)
     // We've deferred initializing the logging registry due to not being
@@ -2820,13 +2786,9 @@ QString QCoreApplication::applicationName()
 */
 void QCoreApplication::setApplicationVersion(const QString &version)
 {
-    coreappdata()->applicationVersionSet = !version.isEmpty();
-    QString newVersion = version;
-    if (newVersion.isEmpty() && QCoreApplication::self)
-        newVersion = QCoreApplication::self->d_func()->appVersion();
-    if (coreappdata()->applicationVersion == newVersion)
+    if (coreappdata()->applicationVersion == version)
         return;
-    coreappdata()->applicationVersion = newVersion;
+    coreappdata()->applicationVersion = version;
 #ifndef QT_NO_QOBJECT
     if (QCoreApplication::self)
         emit QCoreApplication::self->applicationVersionChanged();
@@ -2835,7 +2797,7 @@ void QCoreApplication::setApplicationVersion(const QString &version)
 
 QString QCoreApplication::applicationVersion()
 {
-    return coreappdata() ? coreappdata()->applicationVersion : QString();
+    return coreappdata()->applicationVersion;
 }
 
 #if QT_CONFIG(permissions) || defined(Q_QDOC)

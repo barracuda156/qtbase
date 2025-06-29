@@ -71,7 +71,7 @@ public:
     QString appVersion() const;
 
 #ifdef Q_OS_DARWIN
-    static QString infoDictionaryStringProperty(const QString &propertyName);
+    static QString macMenuBarName();
 #endif
 
     void initConsole();
