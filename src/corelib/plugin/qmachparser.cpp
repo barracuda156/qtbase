@@ -61,7 +61,11 @@ static bool isEncrypted(const my_mach_header *header)
     auto commandCursor = uintptr_t(header) + sizeof(my_mach_header);
     for (uint32_t i = 0; i < header->ncmds; ++i) {
         load_command *loadCommand = reinterpret_cast<load_command *>(commandCursor);
-        if (loadCommand->cmd == LC_ENCRYPTION_INFO || loadCommand->cmd == LC_ENCRYPTION_INFO_64) {
+        if (loadCommand->cmd == LC_ENCRYPTION_INFO
+#ifdef MACHO64
+            || loadCommand->cmd == LC_ENCRYPTION_INFO_64
+#endif
+            ) {
             // The layout of encryption_info_command and encryption_info_command_64 is the same
             // up until and including cryptid, so we can treat it as encryption_info_command.
             auto encryptionInfoCommand = reinterpret_cast<encryption_info_command*>(loadCommand);
