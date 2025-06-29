@@ -260,7 +260,7 @@ void prepareStackTrace()
 #if defined(Q_OS_MACOS)
     // Try to handle https://github.com/llvm/llvm-project/issues/53254,
     // where LLDB will hang and fail to provide a valid stack trace.
-# if defined(Q_PROCESSOR_ARM)
+# if defined(Q_PROCESSOR_ARM) || defined(__POWERPC__)
     return;
  #else
     #define CSR_ALLOW_UNRESTRICTED_FS (1 << 1)

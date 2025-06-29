@@ -191,7 +191,7 @@ QDebug operator<<(QDebug dbg, id obj)
     }
 
     for (Class cls = object_getClass(obj); cls; cls = class_getSuperclass(cls)) {
-        if (cls == NSObject.class) {
+        if (cls == [NSObject class]) {
             dbg << static_cast<NSObject*>(obj);
             return dbg;
         }
@@ -205,11 +205,7 @@ QDebug operator<<(QDebug dbg, id obj)
 
 QDebug operator<<(QDebug dbg, const NSObject *nsObject)
 {
-    return dbg << (nsObject ?
-            dbg.verbosity() > 2 ?
-                nsObject.debugDescription.UTF8String :
-                nsObject.description.UTF8String
-        : "NSObject(0x0)");
+    return dbg << (nsObject ? [nsObject debugDescription].UTF8String : "NSObject(0x0)");
 }
 
 QDebug operator<<(QDebug dbg, CFStringRef stringRef)
@@ -316,7 +312,8 @@ QDebug operator<<(QDebug debug, const QCFString &string)
 }
 #endif // !QT_NO_DEBUG_STREAM
 
-#ifdef Q_OS_MACOS && MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+#ifdef Q_OS_MACOS
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
 bool qt_mac_applicationIsInDarkMode()
 {
     auto appearance = [NSApp.effectiveAppearance bestMatchFromAppearancesWithNames:
@@ -335,6 +332,8 @@ bool qt_mac_runningUnderRosetta()
     return false;
 }
 #endif
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101100 // Unverified, but for sure broken on ppc
 
 std::optional<uint32_t> qt_mac_sipConfiguration()
 {
@@ -371,6 +370,7 @@ std::optional<uint32_t> qt_mac_sipConfiguration()
     }();
     return configuration;
 }
+#endif
 
 #define CHECK_SPAWN(expr) \
     if (int err = (expr)) { \
@@ -448,9 +448,8 @@ AppleApplication *qt_apple_sharedApplication()
 }
 #endif
 
-#if !defined(QT_BOOTSTRAPPED)
+#if !defined(QT_BOOTSTRAPPED) && MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 
-#if defined(Q_OS_MACOS) && MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 namespace {
 struct SandboxChecker
 {
@@ -494,7 +493,6 @@ private:
 };
 } // namespace
 static SandboxChecker sandboxChecker;
-#endif // Q_OS_MACOS
 
 bool qt_apple_isSandboxed()
 {
@@ -572,12 +570,12 @@ void QMacNotificationObserver::remove()
 
 // -------------------------------------------------------------------------
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+
 QMacKeyValueObserver::QMacKeyValueObserver(const QMacKeyValueObserver &other)
     : QMacKeyValueObserver(other.object, other.keyPath, *other.callback.get())
 {
 }
-
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
 
 void QMacKeyValueObserver::addObserver(NSKeyValueObservingOptions options)
 {
@@ -648,38 +646,12 @@ enum Platform {
 
 QMacVersion::VersionTuple QMacVersion::versionsForImage(const mach_header *machHeader)
 {
-    static auto osForLoadCommand = [](uint32_t cmd) {
-        switch (cmd) {
-        case LC_VERSION_MIN_MACOSX: return QOperatingSystemVersion::MacOS;
-        case LC_VERSION_MIN_IPHONEOS: return QOperatingSystemVersion::IOS;
-        case LC_VERSION_MIN_TVOS: return QOperatingSystemVersion::TvOS;
-        case LC_VERSION_MIN_WATCHOS: return QOperatingSystemVersion::WatchOS;
-        default: return QOperatingSystemVersion::Unknown;
-        }
-    };
-
-    static auto osForPlatform = [](uint32_t platform) {
-        switch (platform) {
-        case Platform::macOS:
-            return QOperatingSystemVersion::MacOS;
-        case Platform::iOS:
-        case Platform::iOSSimulator:
-            return QOperatingSystemVersion::IOS;
-        case Platform::tvOS:
-        case Platform::tvOSSimulator:
-            return QOperatingSystemVersion::TvOS;
-        case Platform::watchOS:
-        case Platform::watchOSSimulator:
-            return QOperatingSystemVersion::WatchOS;
-        default:
-            return QOperatingSystemVersion::Unknown;
-        }
-    };
-
-    static auto makeVersionTuple = [](uint32_t dt, uint32_t sdk, QOperatingSystemVersion::OSType osType) {
+    static auto makeVersionTuple = [](uint32_t dt, uint32_t sdk) {
         return std::pair(
-            QOperatingSystemVersion(osType, dt >> 16 & 0xffff, dt >> 8 & 0xff, dt & 0xff),
-            QOperatingSystemVersion(osType, sdk >> 16 & 0xffff, sdk >> 8 & 0xff, sdk & 0xff)
+            QOperatingSystemVersion(QOperatingSystemVersion::currentType(),
+                dt >> 16 & 0xffff, dt >> 8 & 0xff, dt & 0xff),
+            QOperatingSystemVersion(QOperatingSystemVersion::currentType(),
+                sdk >> 16 & 0xffff, sdk >> 8 & 0xff, sdk & 0xff)
         );
     };
 
@@ -688,13 +660,9 @@ QMacVersion::VersionTuple QMacVersion::versionsForImage(const mach_header *machH
 
     for (uint32_t i = 0; i < machHeader->ncmds; ++i) {
         load_command *loadCommand = reinterpret_cast<load_command *>(commandCursor);
-        if (loadCommand->cmd == LC_VERSION_MIN_MACOSX || loadCommand->cmd == LC_VERSION_MIN_IPHONEOS
-            || loadCommand->cmd == LC_VERSION_MIN_TVOS || loadCommand->cmd == LC_VERSION_MIN_WATCHOS) {
+        if (loadCommand->cmd == LC_VERSION_MIN_MACOSX || loadCommand->cmd == LC_VERSION_MIN_IPHONEOS) {
             auto versionCommand = reinterpret_cast<version_min_command *>(loadCommand);
-            return makeVersionTuple(versionCommand->version, versionCommand->sdk, osForLoadCommand(loadCommand->cmd));
-        } else if (loadCommand->cmd == LC_BUILD_VERSION) {
-            auto versionCommand = reinterpret_cast<build_version_command *>(loadCommand);
-            return makeVersionTuple(versionCommand->minos, versionCommand->sdk, osForPlatform(versionCommand->platform));
+            return makeVersionTuple(versionCommand->version, versionCommand->sdk);
         }
         commandCursor += loadCommand->cmdsize;
     }
@@ -737,7 +705,7 @@ QT_END_NAMESPACE
 @implementation QT_MANGLE_NAMESPACE(WeakPointerLifetimeTracker)
 - (void)dealloc
 {
-    *self.pointer = {};
+    self.pointer = nil;
     [super dealloc];
 }
 @end

@@ -177,22 +177,22 @@ public:
     using QAppleRefCounted<T, CFTypeRef, CFRetain, CFRelease>::QAppleRefCounted;
     template <typename X> X as() const { return reinterpret_cast<X>(this->value); }
 #else
-    inline QCFType(const T &t = 0) : type(t) {}
-    inline QCFType(const QCFType &helper) : type(helper.type) { if (type) CFRetain(type); }
-    inline ~QCFType() { if (type) CFRelease(type); }
-    inline operator T() { return type; }
-    inline QCFType operator =(const QCFType &helper)
+    inline QCFType(const T &t = 0) : value(t) {}
+    inline QCFType(const QCFType &other) : value(other.value) { if (value) CFRetain(value); }
+    inline ~QCFType() { if (value) CFRelease(value); }
+    inline operator T() { return value; }
+    inline QCFType operator =(const QCFType &other)
     {
-        if (helper.type)
-            CFRetain(helper.type);
-        CFTypeRef type2 = type;
-        type = helper.type;
-        if (type2)
-            CFRelease(type2);
+        if (other.value)
+            CFRetain(other.value);
+        CFTypeRef value2 = value;
+        value = other.value;
+        if (value2)
+            CFRelease(value2);
         return *this;
     }
-    inline T *operator&() { return &type; }
-    template <typename X> X as() const { return reinterpret_cast<X>(type); }
+    inline T *operator&() { return &value; }
+    template <typename X> X as() const { return reinterpret_cast<X>(value); }
 #endif
     static QCFType constructFromGet(const T &t)
     {
@@ -202,7 +202,7 @@ public:
     }
 #ifndef USE_QAPPLEREFCOUNTED
 protected:
-    T type;
+    T value;
 #endif
 };
 
@@ -238,7 +238,9 @@ Q_CORE_EXPORT bool qt_mac_applicationIsInDarkMode();
 #ifndef __POWERPC__ // Wrong Rosetta
 Q_CORE_EXPORT bool qt_mac_runningUnderRosetta();
 #endif
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101100
 Q_CORE_EXPORT std::optional<uint32_t> qt_mac_sipConfiguration();
+#endif
 #ifdef QT_BUILD_INTERNAL
 Q_AUTOTEST_EXPORT void qt_mac_ensureResponsible();
 #endif
@@ -388,15 +390,13 @@ public:
     QMacNotificationObserver() : observer(nullptr), target(nullptr) {}
 
 #if defined(__OBJC__)
-    // Classic selector-based observer; callbackSelector must be an Objective-C selector on the target object
-    QMacNotificationObserver(NSObject *object, NSNotificationName name, NSObject *target, SEL callbackSelector)
+    QMacNotificationObserver(NSObject *object, NSString *name, NSObject *target, SEL callbackSelector)
         : observer(nullptr), target(nil)
     {
         initialize(object, name, target, callbackSelector);
     }
 
-    // For delayed/explicit initialization
-    void initialize(NSObject *object, NSNotificationName name, NSObject *targetObject, SEL callbackSelector)
+    void initialize(NSObject *object, NSString *name, NSObject *targetObject, SEL callbackSelector)
     {
         remove();
         observer = nil;
@@ -405,7 +405,7 @@ public:
                                                     selector:callbackSelector
                                                     name:name
                                                     object:object];
-            observer = targetObject; // record for removal
+            observer = targetObject;
             target = targetObject;
         }
     }
@@ -441,16 +441,7 @@ public:
         qt_ptr_swap(target, other.target);
     }
 
-    void remove()
-    {
-#if defined(__OBJC__)
-        if (observer && target) {
-            [[NSNotificationCenter defaultCenter] removeObserver:target];
-            observer = nullptr;
-            target = nullptr;
-        }
-#endif
-    }
+    void remove();
 
     ~QMacNotificationObserver() { remove(); }
 
@@ -472,7 +463,7 @@ public:
 
     QMacKeyValueObserver() = default;
 
-#if defined( __OBJC__)
+#if defined(__OBJC__)
     // Note: QMacKeyValueObserver must not outlive the object observed!
     QMacKeyValueObserver(NSObject *object, NSString *keyPath, Callback callback,
         NSKeyValueObservingOptions options = NSKeyValueObservingOptionNew)
@@ -507,7 +498,7 @@ public:
     }
 
 private:
-#if defined( __OBJC__)
+#if defined(__OBJC__)
     void addObserver(NSKeyValueObservingOptions options);
 #endif
 
@@ -544,21 +535,7 @@ private:
 
 // -------------------------------------------------------------------------
 
-#ifdef __OBJC__
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, T>::type
-qt_objc_cast(id object)
-{
-    if ([object isKindOfClass:[typename std::remove_pointer<T>::type class]])
-        return static_cast<T>(object);
-
-    return nil;
-}
-#endif
-
-// -------------------------------------------------------------------------
-
-#if defined( __OBJC__)
+#if defined(__OBJC__)
 
 template <typename T = NSObject>
 class QObjCWeakPointer;
@@ -572,7 +549,7 @@ QT_END_NAMESPACE
 #include <objc/runtime.h>
 Q_CORE_EXPORT
 QT_DECLARE_NAMESPACED_OBJC_INTERFACE(WeakPointerLifetimeTracker, NSObject
-[lifetimeTracker setPointer:(QObjCWeakPointer<NSObject> *)this];
+- (void)setPointer:(QObjCWeakPointer<NSObject> *)ptr;
 )
 QT_BEGIN_NAMESPACE
 #endif
