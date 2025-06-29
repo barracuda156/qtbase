@@ -11,7 +11,7 @@
 #include "qloggingcategory.h"
 #include <private/qtools_p.h>
 
-#if defined(QMAC_OS_BROKEN)
+#if defined(Q_MAC_OS_BROKEN)
 #  include <private/qeventdispatcher_cf_p.h>
 #elif defined(Q_OS_WASM)
 #    include <private/qeventdispatcher_wasm_p.h>
@@ -264,7 +264,7 @@ typedef void *(*QtThreadCallback)(void *);
 QAbstractEventDispatcher *QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
     Q_UNUSED(data);
-#if defined(Q_OS_DARWIN)
+#if defined(Q_MAC_OS_BROKEN)
     bool ok = false;
     int value = qEnvironmentVariableIntValue("QT_EVENT_DISPATCHER_CORE_FOUNDATION", &ok);
     if (ok && value > 0)
