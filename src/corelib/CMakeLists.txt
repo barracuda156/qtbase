@@ -847,12 +847,7 @@ qt_internal_extend_target(Core CONDITION UNIX AND NOT HAIKU AND NOT INTEGRITY AN
         m
 )
 
-qt_internal_extend_target(Core CONDITION APPLE
-    SOURCES
-        text/qlocale_mac.mm
-)
-
-qt_internal_extend_target(Core CONDITION UNIX AND NOT APPLE AND NOT WASM
+qt_internal_extend_target(Core CONDITION UNIX OR APPLE AND NOT WASM
     SOURCES
         text/qlocale_unix.cpp
 )
@@ -994,17 +989,12 @@ qt_internal_extend_target(Core CONDITION QT_FEATURE_filesystemwatcher AND WIN32
         io/qfilesystemwatcher_win.cpp io/qfilesystemwatcher_win_p.h
 )
 
-qt_internal_extend_target(Core CONDITION MACOS AND QT_FEATURE_filesystemwatcher
-    SOURCES
-        io/qfilesystemwatcher_fsevents.mm io/qfilesystemwatcher_fsevents_p.h
-)
-
 qt_internal_extend_target(Core CONDITION QT_FEATURE_filesystemwatcher AND QT_FEATURE_inotify AND UNIX AND NOT MACOS
     SOURCES
         io/qfilesystemwatcher_inotify.cpp io/qfilesystemwatcher_inotify_p.h
 )
 
-qt_internal_extend_target(Core CONDITION QT_FEATURE_filesystemwatcher AND UNIX AND NOT MACOS AND NOT QT_FEATURE_inotify AND (APPLE OR FREEBSD OR NETBSD OR OPENBSD)
+qt_internal_extend_target(Core CONDITION QT_FEATURE_filesystemwatcher AND UNIX AND NOT QT_FEATURE_inotify AND (APPLE OR FREEBSD OR NETBSD OR OPENBSD)
     SOURCES
         io/qfilesystemwatcher_kqueue.cpp io/qfilesystemwatcher_kqueue_p.h
 )
@@ -1057,11 +1047,6 @@ qt_internal_extend_target(Core CONDITION QT_FEATURE_process AND UNIX
         ../3rdparty/forkfd
     ATTRIBUTION_FILE_DIR_PATHS
         ../3rdparty/forkfd
-)
-
-qt_internal_extend_target(Core CONDITION APPLE AND QT_FEATURE_processenvironment
-    SOURCES
-        io/qprocess_darwin.mm
 )
 
 qt_internal_extend_target(Core CONDITION APPLE AND NOT MACOS
