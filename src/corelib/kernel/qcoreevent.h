@@ -369,7 +369,7 @@ public:
     explicit QTimerEvent(int timerId);
     explicit QTimerEvent(Qt::TimerId timerId);
 
-    int timerId() const { return qToUnderlying(id()); }
+    int timerId() const { return int(id()); }
     Qt::TimerId id() const { return m_id; }
 
 protected:
