@@ -33,10 +33,12 @@ bool QFileSystemEngine::moveFileToTrash(const QFileSystemEntry &source,
     NSURL *resultingUrl = nil;
     NSError *nserror = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
+#ifdef Q_MACOS_BROKEN
     if ([fm trashItemAtURL:fileurl resultingItemURL:&resultingUrl error:&nserror] != YES) {
         error = QSystemError(nserror.code, QSystemError::NativeError);
         return false;
     }
+#endif
     newLocation = QFileSystemEntry(QUrl::fromNSURL(resultingUrl).path());
     return true;
 #else // watch, tv, iOS don't have a trash can

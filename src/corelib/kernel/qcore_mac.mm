@@ -205,7 +205,9 @@ QDebug operator<<(QDebug dbg, id obj)
 
 QDebug operator<<(QDebug dbg, const NSObject *nsObject)
 {
+#ifdef Q_MACOS_BROKEN
     return dbg << (nsObject ? [nsObject debugDescription].UTF8String : "NSObject(0x0)");
+#endif
 }
 
 QDebug operator<<(QDebug dbg, CFStringRef stringRef)
@@ -426,7 +428,7 @@ bool qt_apple_isApplicationExtension()
     return isExtension;
 }
 
-#if !defined(QT_BOOTSTRAPPED) && !defined(Q_OS_WATCHOS)
+#if !defined(QT_BOOTSTRAPPED) && !defined(Q_OS_WATCHOS) && !defined(Q_MACOS_BROKEN)
 AppleApplication *qt_apple_sharedApplication()
 {
     // Application extensions are not allowed to access the shared application
@@ -608,6 +610,8 @@ QT_BEGIN_NAMESPACE
 
 // -------------------------------------------------------------------------
 
+#ifdef Q_MACOS_BROKEN
+
 QOperatingSystemVersion QMacVersion::buildSDK(VersionTarget target)
 {
     switch (target) {
@@ -697,6 +701,8 @@ QMacVersion::VersionTuple QMacVersion::libraryVersion()
     }();
     return version;
 }
+
+#endif
 
 // -------------------------------------------------------------------------
 

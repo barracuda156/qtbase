@@ -111,6 +111,7 @@ QNativeIpcKey QtIpcCommon::legacyPlatformSafeKey(const QString &key, QtIpcCommon
 
     if (type == QNativeIpcKey::Type::PosixRealtime) {
 #if defined(Q_OS_DARWIN)
+#ifdef Q_MACOS_BROKEN
         if (qt_apple_isSandboxed()) {
             // Sandboxed applications on Apple platforms require the shared memory name
             // to be in the form <application group identifier>/<custom identifier>.
@@ -118,13 +119,16 @@ QNativeIpcKey QtIpcCommon::legacyPlatformSafeKey(const QString &key, QtIpcCommon
             // to apply, we instead document that requirement, and use the key directly.
             QNativeIpcKeyPrivate::setNativeAndLegacyKeys(k, key, key);
         } else {
+#endif
             // The shared memory name limit on Apple platforms is very low (30 characters),
             // so we can't use the logic below of combining the prefix, key, and a hash,
             // to ensure a unique and valid name. Instead we use the first part of the
             // hash, which should still long enough to avoid collisions in practice.
             QString native = u'/' + QLatin1StringView(hex).left(SHM_NAME_MAX - 1);
             QNativeIpcKeyPrivate::setNativeAndLegacyKeys(k, native, key);
+#ifdef Q_MACOS_BROKEN
         }
+#endif
         return k;
 #endif
     }
@@ -362,8 +366,10 @@ QNativeIpcKey QtIpcCommon::platformSafeKey(const QString &key, QtIpcCommon::IpcT
 #if defined(Q_OS_DARWIN)
 QNativeIpcKey::Type QNativeIpcKey::defaultTypeForOs_internal() noexcept
 {
+#ifdef Q_MACOS_BROKEN
     if (qt_apple_isSandboxed())
         return Type::PosixRealtime;
+#endif
     return Type::SystemV;
 }
 #endif
