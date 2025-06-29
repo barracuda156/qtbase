@@ -35,7 +35,7 @@ using namespace Qt::StringLiterals;
 
 bool QSystemSemaphoreSystemV::runtimeSupportCheck()
 {
-#if defined(Q_OS_DARWIN) && defined(MAC_OS_BROKEN)
+#if defined(Q_OS_DARWIN) && defined(Q_MAC_OS_BROKEN)
     if (qt_apple_isSandboxed())
         return false;
 #endif
@@ -56,7 +56,7 @@ key_t QSystemSemaphoreSystemV::handle(QSystemSemaphorePrivate *self, QSystemSema
     if (unix_key != -1)
         return unix_key;  // we already have a semaphore
 
-#if defined(Q_OS_DARWIN) && defined(MAC_OS_BROKEN)
+#if defined(Q_OS_DARWIN) && defined(Q_MAC_OS_BROKEN)
     if (qt_apple_isSandboxed()) {
         // attempting to use System V semaphores will get us a SIGSYS
         self->setError(QSystemSemaphore::PermissionDenied,
