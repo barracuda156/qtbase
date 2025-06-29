@@ -45,7 +45,8 @@ void qYieldCpu(void)
     _mm_pause();
 #elif defined(Q_PROCESSOR_X86)
     __asm__("pause");           // hopefully asm() works in this compiler
-
+#elif defined(__POWERPC__)
+    __asm__ __volatile__("or r27,r27,r27" ::: "memory");
 #elif __has_builtin(__builtin_arm_yield)
     __builtin_arm_yield();
 #elif defined(Q_PROCESSOR_ARM) && Q_PROCESSOR_ARM >= 7 && defined(Q_CC_GNU)
