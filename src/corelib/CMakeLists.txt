@@ -632,7 +632,7 @@ qt_internal_extend_target(Core CONDITION APPLE
         kernel/qcore_foundation.mm
         kernel/qcore_mac.mm kernel/qcore_mac_p.h
         kernel/qcoreapplication_mac.cpp
-        kernel/qeventdispatcher_cf.mm kernel/qeventdispatcher_cf_p.h
+#        kernel/qeventdispatcher_cf.mm kernel/qeventdispatcher_cf_p.h
     LIBRARIES
         ${FWCoreFoundation}
         ${FWFoundation}
@@ -718,7 +718,7 @@ qt_internal_extend_target(Core CONDITION UNIX
         thread/qthread_unix.cpp
 )
 
-qt_internal_extend_target(Core CONDITION UNIX AND NOT WASM
+qt_internal_extend_target(Core CONDITION APPLE OR UNIX AND NOT WASM
     SOURCES
         kernel/qeventdispatcher_unix.cpp kernel/qeventdispatcher_unix_p.h
 )
