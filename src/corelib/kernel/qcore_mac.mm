@@ -428,7 +428,7 @@ bool qt_apple_isApplicationExtension()
     return isExtension;
 }
 
-#if !defined(QT_BOOTSTRAPPED) && !defined(Q_OS_WATCHOS) && !defined(Q_MACOS_BROKEN)
+#if !defined(QT_BOOTSTRAPPED) && !defined(Q_OS_WATCHOS) && defined(Q_MAC_OS_BROKEN)
 AppleApplication *qt_apple_sharedApplication()
 {
     // Application extensions are not allowed to access the shared application
