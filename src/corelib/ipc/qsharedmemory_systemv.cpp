@@ -33,7 +33,7 @@ using namespace QtIpcCommon;
 
 bool QSharedMemorySystemV::runtimeSupportCheck()
 {
-#if defined(Q_OS_DARWIN)
+#if defined(Q_OS_DARWIN) && defined(MAC_OS_BROKEN)
     if (qt_apple_isSandboxed())
         return false;
 #endif
