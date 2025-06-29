@@ -1125,39 +1125,7 @@
  * Warning/diagnostic handling
  */
 
-#define QT_DO_PRAGMA(text)                      _Pragma(#text)
-#if defined(Q_CC_MSVC) && !defined(Q_CC_CLANG)
-#  undef QT_DO_PRAGMA                           /* not needed */
-#  define QT_WARNING_PUSH                       __pragma(warning(push))
-#  define QT_WARNING_POP                        __pragma(warning(pop))
-#  define QT_WARNING_DISABLE_MSVC(number)       __pragma(warning(disable: number))
-#  define QT_WARNING_DISABLE_INTEL(number)
-#  define QT_WARNING_DISABLE_CLANG(text)
-#  define QT_WARNING_DISABLE_GCC(text)
-#  define QT_WARNING_DISABLE_DEPRECATED         QT_WARNING_DISABLE_MSVC(4996)
-#  define QT_WARNING_DISABLE_FLOAT_COMPARE
-#  define QT_WARNING_DISABLE_INVALID_OFFSETOF
-#elif defined(Q_CC_CLANG)
-#  define QT_WARNING_PUSH                       QT_DO_PRAGMA(clang diagnostic push)
-#  define QT_WARNING_POP                        QT_DO_PRAGMA(clang diagnostic pop)
-#  define QT_WARNING_DISABLE_CLANG(text)        QT_DO_PRAGMA(clang diagnostic ignored text)
-#  define QT_WARNING_DISABLE_GCC(text)
-#  define QT_WARNING_DISABLE_INTEL(number)
-#  define QT_WARNING_DISABLE_MSVC(number)
-#  define QT_WARNING_DISABLE_DEPRECATED         QT_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
-#  define QT_WARNING_DISABLE_FLOAT_COMPARE      QT_WARNING_DISABLE_CLANG("-Wfloat-equal")
-#  define QT_WARNING_DISABLE_INVALID_OFFSETOF   QT_WARNING_DISABLE_CLANG("-Winvalid-offsetof")
-#elif defined(Q_CC_GNU) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 406)
-#  define QT_WARNING_PUSH                       QT_DO_PRAGMA(GCC diagnostic push)
-#  define QT_WARNING_POP                        QT_DO_PRAGMA(GCC diagnostic pop)
-#  define QT_WARNING_DISABLE_GCC(text)          QT_DO_PRAGMA(GCC diagnostic ignored text)
-#  define QT_WARNING_DISABLE_CLANG(text)
-#  define QT_WARNING_DISABLE_INTEL(number)
-#  define QT_WARNING_DISABLE_MSVC(number)
-#  define QT_WARNING_DISABLE_DEPRECATED         QT_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
-#  define QT_WARNING_DISABLE_FLOAT_COMPARE      QT_WARNING_DISABLE_GCC("-Wfloat-equal")
-#  define QT_WARNING_DISABLE_INVALID_OFFSETOF   QT_WARNING_DISABLE_GCC("-Winvalid-offsetof")
-#else       // All other compilers, GCC < 4.6 and MSVC < 2008
+#  define QT_DO_PRAGMA(text)
 #  define QT_WARNING_DISABLE_GCC(text)
 #  define QT_WARNING_PUSH
 #  define QT_WARNING_POP
@@ -1168,7 +1136,6 @@
 #  define QT_WARNING_DISABLE_DEPRECATED
 #  define QT_WARNING_DISABLE_FLOAT_COMPARE
 #  define QT_WARNING_DISABLE_INVALID_OFFSETOF
-#endif
 
 #ifndef QT_IGNORE_DEPRECATIONS
 #define QT_IGNORE_DEPRECATIONS(statement) \
