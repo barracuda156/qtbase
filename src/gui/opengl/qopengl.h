@@ -102,9 +102,12 @@ typedef char GLchar;
 # endif
 #else // non-ES2 platforms
 # if defined(Q_OS_MACOS)
+#  include <AvailabilityMacros.h>
 #  include <OpenGL/gl.h>
 #  define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
+# if defined(Q_MAC_OS_BROKEN)
 #  include <OpenGL/gl3.h>
+# endif
 #  include <OpenGL/glext.h>
 # else
 #  define GL_GLEXT_LEGACY // Prevents GL/gl.h from #including system glext.h
@@ -121,8 +124,8 @@ typedef char GLchar;
 # endif
 #endif // !QT_CONFIG(opengles2)
 
-// Desktops can support OpenGL 4.
-#if !QT_CONFIG(opengles2)
+// Some desktops can support OpenGL 4.
+#if !QT_CONFIG(opengles2) && !(defined(Q_OS_MACOS) && MAC_OS_X_VERSION_MIN_REQUIRED < 1070)
 #define QT_OPENGL_3
 #define QT_OPENGL_3_2
 #define QT_OPENGL_4
