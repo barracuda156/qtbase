@@ -20,9 +20,9 @@
 #  include "qfilesystemwatcher_win_p.h"
 #elif defined(USE_INOTIFY)
 #  include "qfilesystemwatcher_inotify_p.h"
-#elif defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD) || defined(QT_PLATFORM_UIKIT)
+#elif defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_MACOS) || defined(QT_PLATFORM_UIKIT)
 #  include "qfilesystemwatcher_kqueue_p.h"
-#elif defined(Q_OS_MACOS)
+#elif defined(Q_MAC_OS_BROKEN)
 #  include "qfilesystemwatcher_fsevents_p.h"
 #endif
 
@@ -43,9 +43,9 @@ QFileSystemWatcherEngine *QFileSystemWatcherPrivate::createNativeEngine(QObject 
     // there is a chance that inotify may fail on Linux pre-2.6.13 (August
     // 2005), so we can't just new inotify directly.
     return QInotifyFileSystemWatcherEngine::create(parent);
-#elif defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD) || defined(QT_PLATFORM_UIKIT)
+#elif defined(Q_OS_FREEBSD) || defined(Q_OS_NETBSD) || defined(Q_OS_OPENBSD) || defined(Q_OS_MACOS) || defined(QT_PLATFORM_UIKIT)
     return QKqueueFileSystemWatcherEngine::create(parent);
-#elif defined(Q_OS_MACOS)
+#elif defined(Q_MAC_OS_BROKEN)
     return QFseventsFileSystemWatcherEngine::create(parent);
 #else
     Q_UNUSED(parent);
