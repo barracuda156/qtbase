@@ -11,7 +11,7 @@
 #include "qloggingcategory.h"
 #include <private/qtools_p.h>
 
-#if defined(Q_OS_DARWIN)
+#if defined(QMAC_OS_BROKEN)
 #  include <private/qeventdispatcher_cf_p.h>
 #elif defined(Q_OS_WASM)
 #    include <private/qeventdispatcher_wasm_p.h>
