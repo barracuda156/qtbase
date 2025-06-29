@@ -17,6 +17,49 @@
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qcoreapplication.h>
 
+#if !defined(kCFDateFormatterMonthSymbols)
+#define kCFDateFormatterMonthSymbols CFSTR("MonthSymbols")
+#endif
+#if !defined(kCFDateFormatterShortMonthSymbols)
+#define kCFDateFormatterShortMonthSymbols CFSTR("ShortMonthSymbols")
+#endif
+#if !defined(kCFDateFormatterVeryShortMonthSymbols)
+#define kCFDateFormatterVeryShortMonthSymbols CFSTR("VeryShortMonthSymbols")
+#endif
+#if !defined(kCFDateFormatterStandaloneMonthSymbols)
+#define kCFDateFormatterStandaloneMonthSymbols CFSTR("StandaloneMonthSymbols")
+#endif
+#if !defined(kCFDateFormatterShortStandaloneMonthSymbols)
+#define kCFDateFormatterShortStandaloneMonthSymbols CFSTR("ShortStandaloneMonthSymbols")
+#endif
+#if !defined(kCFDateFormatterVeryShortStandaloneMonthSymbols)
+#define kCFDateFormatterVeryShortStandaloneMonthSymbols CFSTR("VeryShortStandaloneMonthSymbols")
+#endif
+#if !defined(kCFDateFormatterWeekdaySymbols)
+#define kCFDateFormatterWeekdaySymbols CFSTR("WeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterShortWeekdaySymbols)
+#define kCFDateFormatterShortWeekdaySymbols CFSTR("ShortWeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterVeryShortWeekdaySymbols)
+#define kCFDateFormatterVeryShortWeekdaySymbols CFSTR("VeryShortWeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterStandaloneWeekdaySymbols)
+#define kCFDateFormatterStandaloneWeekdaySymbols CFSTR("StandaloneWeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterShortStandaloneWeekdaySymbols)
+#define kCFDateFormatterShortStandaloneWeekdaySymbols CFSTR("ShortStandaloneWeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterVeryShortStandaloneWeekdaySymbols)
+#define kCFDateFormatterVeryShortStandaloneWeekdaySymbols CFSTR("VeryShortStandaloneWeekdaySymbols")
+#endif
+#if !defined(kCFDateFormatterAMSymbol)
+#define kCFDateFormatterAMSymbol CFSTR("AMSymbol")
+#endif
+#if !defined(kCFDateFormatterPMSymbol)
+#define kCFDateFormatterPMSymbol CFSTR("PMSymbol")
+#endif
+
 QT_BEGIN_NAMESPACE
 
 using namespace Qt::StringLiterals;
@@ -77,7 +120,7 @@ static QVariant macMonthName(int month, QSystemLocale::QueryType type)
         = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
                                 kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
 
-    CFDateFormatterKey formatterType;
+    CFStringRef formatterType;
     switch (type) {
         case QSystemLocale::MonthNameLong:
             formatterType = kCFDateFormatterMonthSymbols;
@@ -120,7 +163,7 @@ static QVariant macDayName(int day, QSystemLocale::QueryType type)
         = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
                                 kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
 
-    CFDateFormatterKey formatterType;
+    CFStringRef formatterType;
     switch (type) {
     case QSystemLocale::DayNameLong:
         formatterType = kCFDateFormatterWeekdaySymbols;
