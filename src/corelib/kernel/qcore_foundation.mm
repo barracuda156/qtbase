@@ -537,7 +537,7 @@ QTimeZone QTimeZone::fromNSTimeZone(const NSTimeZone *timeZone)
 */
 NSTimeZone *QTimeZone::toNSTimeZone() const
 {
-    return [static_cast<NSTimeZone *>(toCFTimeZone()) autorelease];
+    return [(NSTimeZone *)toCFTimeZone() autorelease];
 }
 #endif
 
