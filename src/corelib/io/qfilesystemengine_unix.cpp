@@ -143,17 +143,25 @@ static bool isPackage(const QFileSystemMetaData &data, const QFileSystemEntry &e
             return true;
 
 #ifdef Q_OS_MACOS
-        // Find if an application other than Finder claims to know how to handle the package
-        QCFType<CFURLRef> application = LSCopyDefaultApplicationURLForURL(url,
-            kLSRolesEditor | kLSRolesViewer, nullptr);
+    // Find if an application other than Finder claims to know how to handle the package
+    QCFType<CFURLRef> application;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
+    application = LSCopyDefaultApplicationURLForURL(url,
+        kLSRolesEditor | kLSRolesViewer, nullptr);
+#else
+    CFURLRef appURL = nullptr;
+    OSStatus status = LSGetApplicationForURL(url, kLSRolesEditor | kLSRolesViewer, nullptr, &appURL);
+    if (status == noErr && appURL)
+        application = appURL;
+#endif
 
-        if (application) {
-            QCFType<CFBundleRef> bundle = CFBundleCreate(kCFAllocatorDefault, application);
-            CFStringRef identifier = CFBundleGetIdentifier(bundle);
-            QString applicationId = QString::fromCFString(identifier);
-            if (applicationId != "com.apple.finder"_L1)
-                return true;
-        }
+    if (application) {
+        QCFType<CFBundleRef> bundle = CFBundleCreate(kCFAllocatorDefault, application);
+        CFStringRef identifier = CFBundleGetIdentifier(bundle);
+        QString applicationId = QString::fromCFString(identifier);
+        if (applicationId != "com.apple.finder"_L1)
+            return true;
+    }
 #endif
     }
 
