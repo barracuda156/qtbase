@@ -21,7 +21,7 @@
 #include <QtGui/qregion.h>
 #include <QtGui/qpalette.h>
 
-#include <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
 
 #if defined(__OBJC__)
 # if defined(Q_OS_MACOS)

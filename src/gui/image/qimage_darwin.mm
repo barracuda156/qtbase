@@ -6,8 +6,8 @@
 #include <private/qcore_mac_p.h>
 #include <private/qcoregraphics_p.h>
 
-#import <Foundation/Foundation.h>
-#import <CoreGraphics/CoreGraphics.h>
+#include <Foundation/Foundation.h>
+#include <ApplicationServices/ApplicationServices.h>
 
 QT_BEGIN_NAMESPACE
 
