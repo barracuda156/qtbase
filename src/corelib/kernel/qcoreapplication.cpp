@@ -2800,6 +2800,7 @@ QString QCoreApplication::applicationVersion()
     return coreappdata()->applicationVersion;
 }
 
+#ifdef Q_MAC_OS_BROKEN // Build does not respect configure args
 #if QT_CONFIG(permissions) || defined(Q_QDOC)
 
 /*!
@@ -2948,6 +2949,7 @@ void QCoreApplication::requestPermission(const QPermission &requestedPermission,
 }
 
 #endif // QT_CONFIG(permissions)
+#endif // Q_MAC_OS_BROKEN
 
 #if QT_CONFIG(library)
 
