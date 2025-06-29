@@ -80,7 +80,7 @@ Q_GLOBAL_STATIC(QNetworkAccessDebugPipeBackendFactory, debugpipeBackend)
 
 Q_APPLICATION_STATIC(QFactoryLoader, qnabfLoader, QNetworkAccessBackendFactory_iid, "/networkaccess"_L1)
 
-#if defined(Q_OS_MACOS)
+#if defined(Q_MAC_OS_BROKEN)
 bool getProxyAuth(const QString& proxyHostname, const QString &scheme, QString& username, QString& password)
 {
     CFStringRef protocolType = nullptr;
