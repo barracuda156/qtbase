@@ -32,7 +32,7 @@ public:
     void swap(QBasicTimer &other) noexcept { std::swap(m_id, other.m_id); }
 
     bool isActive() const noexcept { return m_id != Qt::TimerId::Invalid; }
-    int timerId() const noexcept { return qToUnderlying(id()); }
+    int timerId() const noexcept { return int(id()); }
     Qt::TimerId id() const noexcept { return m_id; }
     QT_CORE_INLINE_SINCE(6, 5)
     void start(int msec, QObject *obj);
