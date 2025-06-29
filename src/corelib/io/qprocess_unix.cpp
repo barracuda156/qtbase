@@ -61,13 +61,17 @@
 #ifdef Q_OS_FREEBSD
 __attribute__((weak))
 #endif
+
+#ifdef Q_OS_DARWIN
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#else
 extern char **environ;
+#endif
 
 QT_BEGIN_NAMESPACE
 
 using namespace Qt::StringLiterals;
-
-#if !defined(Q_OS_DARWIN)
 
 QProcessEnvironment QProcessEnvironment::systemEnvironment()
 {
@@ -85,8 +89,6 @@ QProcessEnvironment QProcessEnvironment::systemEnvironment()
     }
     return env;
 }
-
-#endif // !defined(Q_OS_DARWIN)
 
 #if QT_CONFIG(process)
 
